@@ -2,13 +2,13 @@ import random
 import string
 from flask import Blueprint, render_template, redirect, url_for
 from batch_demographics.database import db
-from batch_demographics.core.model import Batch
+from batch_demographics.model import Batch
 
 
-core = Blueprint('core', __name__, template_folder='templates')
+blueprint = Blueprint('ui', __name__, template_folder='templates')
 
 
-@core.record
+@blueprint.record
 def record(state):
 
     if db is None:
@@ -16,15 +16,15 @@ def record(state):
                         "database access through database")
 
 
-@core.route('/')
-@core.route("/<int:page>")
+@blueprint.route('/')
+@blueprint.route("/<int:page>")
 def index(page=1):
     batches = Batch.query.all()
 
     return render_template('index.html', batches=batches)
 
 
-@core.route('/add')
+@blueprint.route('/add')
 def add():
     b = Batch()
     b.name = ''.join(
@@ -35,4 +35,4 @@ def add():
     db.session.add(b)
     db.session.commit()
 
-    return redirect(url_for('core.index'))
+    return redirect(url_for('ui.index'))

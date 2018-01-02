@@ -3,7 +3,7 @@
 import traceback
 from flask import Flask, render_template
 from flask_migrate import Migrate
-from .core import core
+from .ui import blueprint as ui_blueprint
 from .api import blueprint as api_blueprint
 from batch_demographics.database import db
 
@@ -17,7 +17,7 @@ def create_app(config):
         db.init_app(app)
         Migrate(app, db)
 
-    app.register_blueprint(core)
+    app.register_blueprint(ui_blueprint)
     app.register_blueprint(api_blueprint, url_prefix='/api')
 
     @app.errorhandler(500)
