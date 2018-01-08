@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 Flask_Migrate
 flask-marshmallow
 marshmallow-sqlalchemy
+beautifulsoup4
