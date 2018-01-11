@@ -37,16 +37,15 @@ def test_url_exists(client, path):
 ])
 def test_html_boilerplate(client, path):
     resp = client.get(path)
-    rsoup = BeautifulSoup(resp.data, 'html.parser')
+    soup = BeautifulSoup(resp.data, 'html.parser')
 
-    assert rsoup.find('html') is not None
-    assert rsoup.find('html')['lang'] == "en"
-    assert rsoup.find('head') is not None
-    assert rsoup.find(
+    assert soup.html is not None
+    assert soup.html['lang'] == "en"
+    assert soup.head is not None
+    assert soup.find(
         lambda tag: tag.name == "meta" and
         tag.has_attr('charset') and
         tag['charset'] == "utf-8"
     ) is not None
-    assert rsoup.title is not None
-    assert rsoup.find('body') is not None
-    assert rsoup.find('title') is not None
+    assert soup.title is not None
+    assert soup.body is not None
