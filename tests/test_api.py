@@ -22,3 +22,13 @@ def test_batch_list_empty(client, batches):
     assert resp is not None
     data = json.loads(resp.data.decode('utf8'))
     assert len(data) == batches
+
+
+def test_add_batch(client):
+    resp = client.post("/api/batch/add/", data={})
+
+    assert resp.status_code == 200
+    assert Batch.query.count() == 1
+    data = json.loads(resp.data.decode('utf8'))
+    assert 'id' in data
+    assert 'name' in data

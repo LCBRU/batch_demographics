@@ -29,3 +29,12 @@ batches_schema = BatchSchema(many=True)
 def batches():
     batches = Batch.query.all()
     return batches_schema.jsonify(batches)
+
+
+@blueprint.route('/batch/add/', methods=['POST'])
+def batch_add():
+    result = Batch()
+    db.session.add(result)
+    db.session.commit()
+
+    return batch_schema.jsonify(result)
