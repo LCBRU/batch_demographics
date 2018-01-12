@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import pytest
 from batch_demographics.model import Batch
 from batch_demographics.database import db
@@ -20,15 +19,35 @@ def test_batch_list_empty(client, batches):
     resp = client.get('/api/batch/')
 
     assert resp is not None
-    data = json.loads(resp.data.decode('utf8'))
+    data = resp.get_json()
     assert len(data) == batches
 
 
-def test_add_batch(client):
-    resp = client.post("/api/batch/add/", data={})
+@pytest.mark.parametrize("name", [
+    ('test name'),
+    ('*' * 100),
+])
+def test_add_batch(client, name):
+    resp = client.post_json("/api/batch/", data=dict(name=name))
 
     assert resp.status_code == 200
     assert Batch.query.count() == 1
-    data = json.loads(resp.data.decode('utf8'))
+    assert Batch.query.filter(Batch.name == name).count() == 1
+    data = resp.get_json()
     assert 'id' in data
     assert 'name' in data
+    assert data['name'] == name
+
+
+@pytest.mark.parametrize("name", [
+    (''),
+    ('*' * 101),
+])
+def test_add_batch_name_too_long(client, name):
+    resp = client.post_json("/api/batch/", data=dict(name=name))
+
+    assert resp.status_code == 400
+    assert Batch.query.count() == 0
+    data = resp.get_json()
+    assert 'name' in data
+    assert data['name'] == ['Length must be between 1 and 100.']
