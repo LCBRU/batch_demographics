@@ -41,7 +41,7 @@ def batch_post():
 
     result, errors = batch_schema.load(request.get_json())
 
-    if len(errors) > 0:
+    if errors:
         return jsonify(errors), 400
 
     db.session.add(result)
