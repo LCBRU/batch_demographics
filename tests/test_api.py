@@ -43,7 +43,7 @@ def test_add_batch(client, name):
     (''),
     ('*' * 101),
 ])
-def test_add_batch_name_too_long(client, name):
+def test_add_batch_name_incorrect_length(client, name):
     resp = client.post_json("/api/batch/", data=dict(name=name))
 
     assert resp.status_code == 400
