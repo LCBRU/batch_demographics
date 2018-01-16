@@ -10,7 +10,7 @@ from batch_demographics.database import db
     (1),
     (10),
 ])
-def test_batch_list_empty(client, batches):
+def test_batch_list(client, batches):
 
     for _ in range(batches):
         db.session.add(Batch())
@@ -19,6 +19,7 @@ def test_batch_list_empty(client, batches):
     resp = client.get('/api/batch/')
 
     assert resp is not None
+    assert resp.status_code == 200
     data = resp.get_json()
     assert len(data) == batches
 
