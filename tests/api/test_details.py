@@ -12,7 +12,7 @@ from batch_demographics.database import db
 ])
 def test_details_list(client, num_of_details):
 
-    batch = Batch()
+    batch = Batch(name='')
     db.session.add(batch)
 
     for _ in range(num_of_details):
@@ -21,7 +21,7 @@ def test_details_list(client, num_of_details):
         db.session.add(details)
 
 # Create details for another batch to check that it differentiates
-    other_batch = Batch()
+    other_batch = Batch(name='')
     db.session.add(other_batch)
     other_details = Details()
     other_details.batch = other_batch

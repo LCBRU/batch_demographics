@@ -14,7 +14,7 @@ from batch_demographics.database import db
 def test_batch_list_empty(client, batches):
 
     for _ in range(batches):
-        db.session.add(Batch())
+        db.session.add(Batch(name=''))
         db.session.commit()
 
     resp = client.get('/')

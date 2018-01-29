@@ -24,7 +24,7 @@ def index(page=1):
 
 @blueprint.route('/add')
 def add():
-    db.session.add(Batch())
+    db.session.add(Batch(name=''))
     db.session.commit()
 
     return redirect(url_for('ui.index'))

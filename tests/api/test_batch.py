@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime, timezone
+import dateutil.parser
 import pytest
 from batch_demographics.model import Batch
 from batch_demographics.database import db
@@ -13,7 +15,7 @@ from batch_demographics.database import db
 def test_batch_list(client, batches):
 
     for _ in range(batches):
-        db.session.add(Batch())
+        db.session.add(Batch(name=''))
         db.session.commit()
 
     resp = client.get('/api/batch/')
@@ -29,7 +31,11 @@ def test_batch_list(client, batches):
     ('*' * 100),
 ])
 def test_add_batch(client, name):
+    before_time = datetime.now(timezone.utc)
+
     resp = client.post_json("/api/batch/", data=dict(name=name))
+
+    after_time = datetime.now(timezone.utc)
 
     assert resp.status_code == 200
     assert Batch.query.count() == 1
@@ -38,6 +44,9 @@ def test_add_batch(client, name):
     assert 'id' in data
     assert 'name' in data
     assert data['name'] == name
+    print(data['date_created'])
+    assert dateutil.parser.parse(data['date_created']) > before_time
+    assert dateutil.parser.parse(data['date_created']) < after_time
 
 
 @pytest.mark.parametrize("name", [

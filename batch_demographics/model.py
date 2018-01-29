@@ -1,3 +1,4 @@
+from datetime import datetime
 from batch_demographics.database import db
 
 
@@ -5,6 +6,11 @@ class Batch(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(100))
+    date_created = db.Column(db.DateTime)
+
+    def __init__(self, **kwargs):
+        self.name = kwargs['name']
+        self.date_created = datetime.now()
 
 
 class Details(db.Model):
