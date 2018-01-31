@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from .ui import blueprint as ui_blueprint
 from .api import blueprint as api_blueprint
 from batch_demographics.database import db
+from batch_demographics.marshmallow import ma
 
 
 def create_app(config):
@@ -16,6 +17,7 @@ def create_app(config):
     with app.app_context():
         db.init_app(app)
         Migrate(app, db)
+        ma.init_app(app)
 
     app.register_blueprint(ui_blueprint)
     app.register_blueprint(api_blueprint, url_prefix='/api')

@@ -39,7 +39,15 @@ def test_add_batch(client, name):
 
     assert resp.status_code == 200
     assert Batch.query.count() == 1
-    assert Batch.query.filter(Batch.name == name).count() == 1
+
+    assert Batch.query.filter(
+        Batch.name == name
+    ).filter(
+        Batch.date_created > before_time
+    ).filter(
+        Batch.date_created < after_time
+    ).count() == 1
+
     data = resp.get_json()
     assert 'id' in data
     assert 'name' in data

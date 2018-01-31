@@ -1,5 +1,8 @@
 from datetime import datetime
 from batch_demographics.database import db
+from batch_demographics.marshmallow import ma
+from marshmallow_sqlalchemy import field_for
+from marshmallow.validate import Length
 
 
 class Batch(db.Model):
@@ -9,8 +12,21 @@ class Batch(db.Model):
     date_created = db.Column(db.DateTime)
 
     def __init__(self, **kwargs):
-        self.name = kwargs['name']
+        self.id = kwargs.get('id')
+        self.name = kwargs.get('name')
         self.date_created = datetime.now()
+
+
+class BatchSchema(ma.ModelSchema):
+
+    name = field_for(Batch, 'name', validate=[Length(min=1, max=100)])
+
+    class Meta:
+        model = Batch
+
+
+batch_schema = BatchSchema()
+batch_list_schema = BatchSchema(many=True)
 
 
 class Details(db.Model):
@@ -38,3 +54,50 @@ class Details(db.Model):
             order_by=id,
             cascade="all, delete-orphan",
         ))
+
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id')
+        self.forename = kwargs.get('forename')
+        self.surname = kwargs.get('surname')
+        self.dob = kwargs.get('dob')
+        self.sex = kwargs.get('sex')
+        self.postcode = kwargs.get('postcode')
+        self.nhs_number = kwargs.get('nhs_number')
+        self.system_number = kwargs.get('system_number')
+        self.address1 = kwargs.get('address1')
+        self.address2 = kwargs.get('address2')
+        self.address3 = kwargs.get('address3')
+        self.address4 = kwargs.get('address4')
+        self.address5 = kwargs.get('address5')
+        self.local_id = kwargs.get('local_id')
+
+    def __repr__(self):
+        return "<Details nhs_number:%s>" % self.__dict__
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __lt__(self, other):
+        return self.nhs_number < other.nhs_number
+
+    def __le__(self, other):
+        return self.__lt__(other) or self.__eq__(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __gt__(self, other):
+        return not self.__le__(other)
+
+    def __ge__(self, other):
+        return not self.__lt__(other)
+
+
+class DetailsSchema(ma.ModelSchema):
+
+    class Meta:
+        model = Details
+
+
+details_schema = DetailsSchema()
+details_list_schema = DetailsSchema(many=True)

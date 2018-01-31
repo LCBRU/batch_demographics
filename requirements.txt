@@ -5,3 +5,4 @@ flask-marshmallow
 marshmallow-sqlalchemy
 beautifulsoup4
 pytest
+Faker
