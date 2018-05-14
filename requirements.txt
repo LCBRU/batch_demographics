@@ -6,3 +6,4 @@ marshmallow-sqlalchemy
 beautifulsoup4
 pytest
 Faker
+flask_wtf

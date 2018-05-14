@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 from batch_demographics.database import db
 from batch_demographics.model import Batch
+from batch_demographics.ui.forms import BatchForm
 
 
 blueprint = Blueprint('ui', __name__, template_folder='templates')
@@ -22,9 +23,17 @@ def index(page=1):
     return render_template('index.html', batches=batches)
 
 
-@blueprint.route('/add')
+@blueprint.route('/add', methods=['GET', 'POST'])
 def add():
-    db.session.add(Batch(name=''))
-    db.session.commit()
+    form = BatchForm()
 
-    return redirect(url_for('ui.index'))
+    if form.validate_on_submit():
+
+        db.session.add(Batch(name=form.data['name']))
+        db.session.commit()
+
+        return redirect(url_for('ui.index'))
+
+    else:
+
+        return render_template('edit.html', form=form)

@@ -72,10 +72,13 @@ def client(app):
 @pytest.yield_fixture(scope='function')
 def client_with_crsf(app):
     app = batch_demographics.create_app(TestConfigCRSF)
-    app.app_context().push()
+    context = app.app_context()
+    context.push()
     client = app.test_client()
 
     yield client
+
+    context.pop()
 
 
 class NhsFakerProvider(BaseProvider):

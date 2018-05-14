@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, timezone
 import dateutil.parser
 import pytest
+from datetime import datetime, timezone
 from batch_demographics.model import Batch
 from batch_demographics.database import db
 
@@ -11,11 +11,16 @@ from batch_demographics.database import db
     (0),
     (1),
     (10),
+    (100),
 ])
 def test_batch_list(client, batches):
 
-    for _ in range(batches):
-        db.session.add(Batch(name=''))
+    expected_names = []
+
+    for i in range(batches):
+        name = "batch_{}".format(i)
+        expected_names.append(name)
+        db.session.add(Batch(name=name))
         db.session.commit()
 
     resp = client.get('/api/batch/')
@@ -24,6 +29,7 @@ def test_batch_list(client, batches):
     assert resp.status_code == 200
     data = resp.get_json()
     assert len(data) == batches
+    assert all(b['name'] in expected_names for b in data)
 
 
 @pytest.mark.parametrize("name", [
