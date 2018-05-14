@@ -98,7 +98,7 @@ class Details(db.Model):
 def validate_dob(dob):
 
     if dob < (date.today() - relativedelta(years=120)):
-        raise ValidationError("Not a valid date.")
+        raise ValidationError("DOB too far in the past.")
 
     return dob
 
