@@ -159,12 +159,13 @@ def test_details_add_field_length(client, faker, field_name, max_length):
     assert Details.query.count() == 1
 
 
-@pytest.mark.parametrize("date_string", [
-    ('oijeoirjfeoijre'),
-    ('30-Feb-2010'),
-    ('30-30-2010'),
+@pytest.mark.parametrize("date_string,error_message", [
+    ('oijeoirjfeoijre', 'Not a valid date.'),
+    ('30-Feb-2010', 'Not a valid date.'),
+    ('30-30-2010', 'Not a valid date.'),
+    ('30-01-1010', 'DOB too far in the past.'),
 ])
-def test_details_add_invalid_date(client, faker, date_string):
+def test_details_add_invalid_date(client, faker, date_string, error_message):
 
     detail = faker.daps_details()
     detail['dob'] = date_string
@@ -175,24 +176,7 @@ def test_details_add_invalid_date(client, faker, date_string):
     assert Details.query.count() == 0
     data = resp.get_json()
     assert 'dob' in data['0']
-    assert data['0']['dob'] == ['Not a valid date.']
-
-
-@pytest.mark.parametrize("date_string", [
-    ('30-01-1010'),
-])
-def test_details_add_dob_too_old(client, faker, date_string):
-
-    detail = faker.daps_details()
-    detail['dob'] = date_string
-
-    resp = save_single_detail(client, detail)
-
-    assert resp.status_code == 400
-    assert Details.query.count() == 0
-    data = resp.get_json()
-    assert 'dob' in data['0']
-    assert data['0']['dob'] == ['DOB too far in the past.']
+    assert data['0']['dob'] == [error_message]
 
 
 def save_single_detail(client, detail):
