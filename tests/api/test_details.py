@@ -117,3 +117,78 @@ def test_details_add(client, faker, num_of_details):
         assert actual['address5'] == expected['address5']
         assert actual['local_id'] == expected['local_id']
         assert actual['batch'] == batch.id
+
+
+@pytest.mark.parametrize("field_name, max_length", [
+    ('forename', 100),
+    ('surname', 100),
+    ('sex', 10),
+    ('postcode', 10),
+    ('nhs_number', 10),
+    ('system_number', 10),
+    ('address1', 100),
+    ('address2', 100),
+    ('address3', 100),
+    ('address4', 100),
+    ('address5', 100),
+    ('local_id', 100),
+])
+def test_details_add_field_length(client, faker, field_name, max_length):
+
+    # Just over max length
+    detail = faker.daps_details()
+    detail[field_name] = '*' * (max_length + 1)
+
+    resp = save_single_detail(client, detail)
+
+    assert resp.status_code == 400
+    assert Details.query.count() == 0
+    data = resp.get_json()
+    assert field_name in data['0']
+    assert data['0'][field_name] == [
+        'Longer than maximum length {}.'.format(max_length)
+    ]
+
+    # Exactly max length
+    detail = faker.daps_details()
+    detail[field_name] = '*' * max_length
+
+    resp = save_single_detail(client, detail)
+
+    assert resp.status_code == 200
+    assert Details.query.count() == 1
+
+
+@pytest.mark.parametrize("date_string", [
+    ('oijeoirjfeoijre'),
+    ('30-Feb-2010'),
+    ('30-30-2010'),
+    ('30-01-1010'),
+])
+def test_details_add_invalid_date(client, faker, date_string):
+
+    detail = faker.daps_details()
+    detail['dob'] = date_string
+
+    resp = save_single_detail(client, detail)
+
+    assert resp.status_code == 400
+    assert Details.query.count() == 0
+    data = resp.get_json()
+    assert 'dob' in data['0']
+    assert data['0']['dob'] == ['Not a valid date.']
+
+
+def save_single_detail(client, detail):
+    batch = Batch(name='')
+    db.session.add(batch)
+    db.session.commit()
+
+    details = []
+
+    details.append(detail)
+
+    return client.post_json(
+        '/api/batch/{}/details/'.format(batch.id),
+        data=details
+    )

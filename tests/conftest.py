@@ -53,10 +53,13 @@ class CustomClient(FlaskClient):
 def app(request):
     app = batch_demographics.create_app(TestConfig)
     app.test_client_class = CustomClient
-    app.app_context().push()
+    context = app.app_context()
+    context.push()
     db.create_all()
 
     yield app
+
+    context.pop()
 
 
 @pytest.yield_fixture(scope='function')

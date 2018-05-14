@@ -52,7 +52,6 @@ def test_add_batch(client, name):
     assert 'id' in data
     assert 'name' in data
     assert data['name'] == name
-    print(data['date_created'])
     assert dateutil.parser.parse(data['date_created']) > before_time
     assert dateutil.parser.parse(data['date_created']) < after_time
 

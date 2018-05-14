@@ -1,6 +1,8 @@
-from datetime import datetime
+from datetime import datetime, date, timezone
+from dateutil.relativedelta import relativedelta
 from batch_demographics.database import db
 from batch_demographics.marshmallow import ma
+from marshmallow import ValidationError
 from marshmallow_sqlalchemy import field_for
 from marshmallow.validate import Length
 
@@ -14,7 +16,7 @@ class Batch(db.Model):
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
         self.name = kwargs.get('name')
-        self.date_created = datetime.now()
+        self.date_created = datetime.now(timezone.utc)
 
 
 class BatchSchema(ma.ModelSchema):
@@ -93,7 +95,17 @@ class Details(db.Model):
         return not self.__lt__(other)
 
 
+def validate_dob(dob):
+
+    if dob < (date.today() - relativedelta(years=120)):
+        raise ValidationError("Not a valid date.")
+
+    return dob
+
+
 class DetailsSchema(ma.ModelSchema):
+
+    dob = field_for(Details, 'dob', validate=[validate_dob])
 
     class Meta:
         model = Details

@@ -7,7 +7,6 @@ from batch_demographics.model import (
     batch_schema,
     batch_list_schema,
     Details,
-    details_schema,
     details_list_schema,
 )
 
