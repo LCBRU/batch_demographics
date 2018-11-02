@@ -1,6 +1,6 @@
 Flask
 Flask-SQLAlchemy
-Flask_Migrate
+sqlalchemy-migrate
 flask-marshmallow
 marshmallow-sqlalchemy
 beautifulsoup4
