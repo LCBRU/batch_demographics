@@ -1,35 +1,43 @@
 {% macro render_field(field, label=None) %}
   <div class="row">
     <div class="form-group{% if field.errors %} has-error{%endif%} col-md-offset-1 col-md-10">
-        {% if field.type == "BooleanField" %}
-            {{ field.label(class="col-sm-6 control-label", text=label) }}{{ render_checkbox_field_control(field, **kwargs) }}
+        {% if field.type == "HiddenField" or field.type == "CSRFTokenField" %}
+        {% elif field.type == "BooleanField" %}
+            {{ field.label(class="control-label", text=label) }}{{ render_checkbox_field_control(field, **kwargs) }}
+        {% elif field.type == "RadioField" %}
+            {{ field.label(class="control-label", text=label) }}{{ render_radio_field_control(field, **kwargs) }}
         {% else %}
-            {{ field.label(class="col-sm-6 control-label", text=label) }}{{ render_field_control(field, **kwargs) }}
+            {{ field.label(class="control-label", text=label) }}{{ render_field_control(field, **kwargs) }}
         {% endif %}
     </div>
   </div>
 {% endmacro %}
 
+
 {% macro render_checkbox_field_control(field) %}
-    <div class="col-sm-6 control-label">
-        {{ field(class="checkbox", **kwargs)|safe }}
-    </div>
+    {{ field(class="checkbox", **kwargs)|safe }}
 {% endmacro %}
+
+
+{% macro render_radio_field_control(field) %}
+    {{ field(class="radio", **kwargs)|safe }}
+{% endmacro %}
+
 
 {% macro render_field_control(field) %}
-    <div class="col-sm-6">
-        {{ field(class="form-control", **kwargs)|safe }}
-    </div>
+    {{ field(class="form-control", **kwargs)|safe }}
 {% endmacro %}
 
+
 {% macro render_button_bar(cancelview) %}
-      <div class="form-group col-md-offset-1 col-md-10">
-          <div class="col-md-offset-2 col-md-10">
+      <div class="form-group text-right">
+          <div>
               <a href="{{ url_for(cancelview) }}" class="btn btn-default" role="button">Cancel</a>
               <button type="submit" class="btn btn-primary">Save</button>
           </div>
       </div>
 {% endmacro %}
+
 
 {% macro render_form_errors(form) %}
     {% for field in form %}
@@ -46,4 +54,59 @@
       {% endif %}
     {% endfor %}
 
+{% endmacro %}
+
+
+{% macro render_search(searchForm, searchview, buttons={}, checkboxes={}) %}
+<form method="GET" class="form-horizontal" action="{{ url_for(searchview, **kwargs) }}">
+
+  <div class="input-group">
+      {{ searchForm.search(class="form-control", placeholder="enter search text - searches study number, protocol deviation and comments") | safe }}
+      {% for key, value in checkboxes.items() %}
+        <span class="input-group-addon">
+            <input type="checkbox" id="{{ key }}" aria-label="{{ value }}">
+            <span>{{ value }}</span>
+        </span>
+      {% endfor %}
+      <div class="input-group-btn">
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a class="btn btn-primary" href="{{ url_for(searchview, **kwargs) }}">Clear Search</a>
+
+        {% for key, value in buttons.items() %}
+          <a class="btn btn-primary" href="{{ url_for(value, **kwargs) }}">{{ key }}</a>
+        {% endfor %}
+      </div>
+  </div>
+</form>
+{% endmacro %}
+
+
+{% macro render_pagination(pagination, endpoint) %}
+  {% if pagination.pages > 1 %}
+    <ul class="pagination">
+    {% if pagination.has_prev %}
+      <li><a href="{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}" rel="prev">Previous</a></li>
+    {% else %}
+      <li class="disabled"><a>Previous</a></li>
+    {% endif %}
+
+    {%- for page in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <li><a href="{{ url_for(endpoint, page=page, **kwargs) }}">{{ page }}</a></li>
+        {% else %}
+          <li class="active"><a>{{ page }}</a></li>
+        {% endif %}
+      {% else %}
+        <li class="disabled"><a>…</a></li>
+      {% endif %}
+    {%- endfor %}
+
+    {% if pagination.has_next %}
+      <li><a href="{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}" rel="next">Next</a></li>
+    {% else %}
+      <li class="disabled"><a>Next</a></li>
+    {% endif %}
+    </ul>
+  {% endif %}
 {% endmacro %}
