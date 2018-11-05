@@ -11,21 +11,15 @@ def test_missing_route(client):
 
 @pytest.mark.parametrize("path", [
     ('/'),
+    ('/favicon.ico'),
     ('/add'),
     ('/static/css/main.css'),
-    ('/static/css/bootstrap.min.css'),
-    ('/static/fonts/glyphicons-halflings-regular.eot'),
-    ('/static/fonts/glyphicons-halflings-regular.svg'),
-    ('/static/fonts/glyphicons-halflings-regular.ttf'),
-    ('/static/fonts/glyphicons-halflings-regular.woff'),
-    ('/static/fonts/glyphicons-halflings-regular.woff2'),
-    ('/static/img/nihr-logo.png'),
-    ('/static/js/bootstrap.min.js'),
-    ('/static/js/html5shiv.min.js'),
-    ('/static/js/jquery-1.11.2.min.js'),
+    ('/static/img/nihr-logo-70.png'),
+    ('/static/img/cropped-favicon-32x32.png'),
+    ('/static/img/cropped-favicon-192x192.png'),
+    ('/static/img/cropped-favicon-180x180.png'),
+    ('/static/img/cropped-favicon-270x270.png'),
     ('/static/js/main.js'),
-    ('/static/js/modernizr.min.js'),
-    ('/static/js/respond.min.js'),
 ])
 def test_url_exists(client, path):
     resp = client.get(path)
