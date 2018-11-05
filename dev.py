@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-
-from upload import create_app
+#!/usr/bin/env python
+from batch_demographics import create_app
 from config import DevConfig
 
 app = create_app(DevConfig())

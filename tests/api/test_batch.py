@@ -49,17 +49,17 @@ def test_add_batch(client, name):
     assert Batch.query.filter(
         Batch.name == name
     ).filter(
-        Batch.date_created > before_time
+        Batch.created_date > before_time
     ).filter(
-        Batch.date_created < after_time
+        Batch.created_date < after_time
     ).count() == 1
 
     data = resp.get_json()
     assert 'id' in data
     assert 'name' in data
     assert data['name'] == name
-    assert dateutil.parser.parse(data['date_created']) > before_time
-    assert dateutil.parser.parse(data['date_created']) < after_time
+    assert dateutil.parser.parse(data['created_date']) > before_time
+    assert dateutil.parser.parse(data['created_date']) < after_time
 
 
 @pytest.mark.parametrize("name", [

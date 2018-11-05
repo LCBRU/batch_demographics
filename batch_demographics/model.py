@@ -11,12 +11,12 @@ class Batch(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(100))
-    date_created = db.Column(db.DateTime)
+    created_date = db.Column(db.DateTime)
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
         self.name = kwargs.get('name')
-        self.date_created = datetime.now(timezone.utc)
+        self.created_date = datetime.now(timezone.utc)
 
 
 class BatchSchema(ma.ModelSchema):
@@ -34,6 +34,7 @@ batch_list_schema = BatchSchema(many=True)
 class Details(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
+    created_date = db.Column(db.DateTime)
     forename = db.Column(db.String(100))
     surname = db.Column(db.String(100))
     dob = db.Column(db.Date())
@@ -59,6 +60,7 @@ class Details(db.Model):
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
+        self.created_date = datetime.now(timezone.utc)
         self.forename = kwargs.get('forename')
         self.surname = kwargs.get('surname')
         self.dob = kwargs.get('dob')

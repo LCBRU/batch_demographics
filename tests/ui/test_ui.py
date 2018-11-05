@@ -78,9 +78,9 @@ def test_add_batch_post(client, name):
     assert Batch.query.filter(
         Batch.name == name
     ).filter(
-        Batch.date_created > before_time
+        Batch.created_date > before_time
     ).filter(
-        Batch.date_created < after_time
+        Batch.created_date < after_time
     ).count() == 1
 
 
