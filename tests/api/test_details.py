@@ -10,6 +10,8 @@ from batch_demographics.model import (
 )
 from batch_demographics.database import db
 
+from tests.utils import assert_objects_equals_dictionaries
+
 
 @pytest.mark.parametrize("num_of_details", [
     (0),
@@ -46,11 +48,7 @@ def test_details_list(client, faker, num_of_details):
     assert resp.status_code == 200
     data = resp.get_json()
     assert len(data) == num_of_details
-
-    actuals = details_list_schema.load(data, session=db.session)
-
-    assert sorted(actuals.data) == sorted(expected_details)
-    assert len(actuals.errors) == 0
+    assert_objects_equals_dictionaries(objs=expected_details, dics=data)
 
 
 @pytest.mark.parametrize("num_of_details", [
@@ -74,49 +72,15 @@ def test_details_add(client, faker, num_of_details):
         data=expected_details
     )
 
-    for expected in expected_details:
-        actual = Details.query.filter(
-            Details.nhs_number == expected['nhs_number']
-        ).one()
-
-        assert actual.forename == expected['forename']
-        assert actual.surname == expected['surname']
-        assert actual.dob == expected['dob']
-        assert actual.sex == expected['sex']
-        assert actual.postcode == expected['postcode']
-        assert actual.nhs_number == expected['nhs_number']
-        assert actual.system_number == expected['system_number']
-        assert actual.address1 == expected['address1']
-        assert actual.address2 == expected['address2']
-        assert actual.address3 == expected['address3']
-        assert actual.address4 == expected['address4']
-        assert actual.address5 == expected['address5']
-        assert actual.local_id == expected['local_id']
-        assert actual.batch_id == batch.id
-        expected['id'] = actual.id
-
     assert resp is not None
     assert resp.status_code == 200
     data = resp.get_json()
 
-    assert len(data) == num_of_details
+    actuals = Details.query.all()
+    assert_objects_equals_dictionaries(objs=actuals, dics=expected_details)
 
-    for expected, actual in zip(expected_details, data):
-        assert actual['id'] == expected['id']
-        assert actual['forename'] == expected['forename']
-        assert actual['surname'] == expected['surname']
-        assert dateutil.parser.parse(actual['dob']).date() == expected['dob']
-        assert actual['sex'] == expected['sex']
-        assert actual['postcode'] == expected['postcode']
-        assert actual['nhs_number'] == expected['nhs_number']
-        assert actual['system_number'] == expected['system_number']
-        assert actual['address1'] == expected['address1']
-        assert actual['address2'] == expected['address2']
-        assert actual['address3'] == expected['address3']
-        assert actual['address4'] == expected['address4']
-        assert actual['address5'] == expected['address5']
-        assert actual['local_id'] == expected['local_id']
-        assert actual['batch'] == batch.id
+    assert len(data) == num_of_details
+    assert_objects_equals_dictionaries(objs=actuals, dics=data)
 
 
 @pytest.mark.parametrize("field_name, max_length", [

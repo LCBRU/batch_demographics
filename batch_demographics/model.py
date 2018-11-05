@@ -11,12 +11,7 @@ class Batch(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(100))
-    created_date = db.Column(db.DateTime)
-
-    def __init__(self, **kwargs):
-        self.id = kwargs.get('id')
-        self.name = kwargs.get('name')
-        self.created_date = datetime.now(timezone.utc)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class BatchSchema(ma.ModelSchema):
@@ -34,7 +29,7 @@ batch_list_schema = BatchSchema(many=True)
 class Details(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
-    created_date = db.Column(db.DateTime)
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
     forename = db.Column(db.String(100))
     surname = db.Column(db.String(100))
     dob = db.Column(db.Date())
@@ -57,23 +52,6 @@ class Details(db.Model):
             order_by=id,
             cascade="all, delete-orphan",
         ))
-
-    def __init__(self, **kwargs):
-        self.id = kwargs.get('id')
-        self.created_date = datetime.now(timezone.utc)
-        self.forename = kwargs.get('forename')
-        self.surname = kwargs.get('surname')
-        self.dob = kwargs.get('dob')
-        self.sex = kwargs.get('sex')
-        self.postcode = kwargs.get('postcode')
-        self.nhs_number = kwargs.get('nhs_number')
-        self.system_number = kwargs.get('system_number')
-        self.address1 = kwargs.get('address1')
-        self.address2 = kwargs.get('address2')
-        self.address3 = kwargs.get('address3')
-        self.address4 = kwargs.get('address4')
-        self.address5 = kwargs.get('address5')
-        self.local_id = kwargs.get('local_id')
 
     def __repr__(self):
         return "<Details nhs_number:%s>" % self.__dict__
