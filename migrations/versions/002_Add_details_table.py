@@ -9,9 +9,9 @@ from sqlalchemy import (
     ForeignKey,
 )
 
-meta = MetaData()
 
 def upgrade(migrate_engine):
+    meta = MetaData()
     meta.bind = migrate_engine
 
     Table("batch", meta, autoload=True)
@@ -41,6 +41,7 @@ def upgrade(migrate_engine):
 
 
 def downgrade(migrate_engine):
+    meta = MetaData()
     meta.bind = migrate_engine
     request_details = Table("request_details", meta, autoload=True)
     request_details.drop()

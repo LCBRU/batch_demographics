@@ -2,7 +2,6 @@
 
 import dateutil.parser
 import pytest
-from datetime import datetime, timezone
 from batch_demographics.model import Batch
 from batch_demographics.database import db
 
@@ -37,11 +36,7 @@ def test_batch_list(client, batches):
     ('*' * 100),
 ])
 def test_add_batch(client, name):
-    before_time = datetime.now(timezone.utc)
-
     resp = client.post_json("/api/batch/", data=dict(name=name))
-
-    after_time = datetime.now(timezone.utc)
 
     assert resp.status_code == 200
     assert Batch.query.count() == 1
@@ -49,17 +44,17 @@ def test_add_batch(client, name):
     assert Batch.query.filter(
         Batch.name == name
     ).filter(
-        Batch.created_date > before_time
+        Batch.created_date > resp.requested_time
     ).filter(
-        Batch.created_date < after_time
+        Batch.created_date < resp.received_time
     ).count() == 1
 
     data = resp.get_json()
     assert 'id' in data
     assert 'name' in data
     assert data['name'] == name
-    assert dateutil.parser.parse(data['created_date']) > before_time
-    assert dateutil.parser.parse(data['created_date']) < after_time
+    assert dateutil.parser.parse(data['created_date']) > resp.requested_time
+    assert dateutil.parser.parse(data['created_date']) < resp.received_time
 
 
 @pytest.mark.parametrize("name", [

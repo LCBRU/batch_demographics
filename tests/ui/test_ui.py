@@ -2,7 +2,6 @@
 
 import pytest
 from bs4 import BeautifulSoup
-from datetime import datetime, timezone
 from batch_demographics.model import Batch
 from batch_demographics.database import db
 
@@ -66,11 +65,7 @@ def test_add_batch_get(client):
     ('*' * 100),
 ])
 def test_add_batch_post(client, name):
-    before_time = datetime.now(timezone.utc)
-
     resp = client.post("/add", data=dict(name=name))
-
-    after_time = datetime.now(timezone.utc)
 
     assert resp.status_code == 302
     assert resp.location == 'http://localhost/'
@@ -78,9 +73,9 @@ def test_add_batch_post(client, name):
     assert Batch.query.filter(
         Batch.name == name
     ).filter(
-        Batch.created_date > before_time
+        Batch.created_date > resp.requested_time
     ).filter(
-        Batch.created_date < after_time
+        Batch.created_date < resp.received_time
     ).count() == 1
 
 

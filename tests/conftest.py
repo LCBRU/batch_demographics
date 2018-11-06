@@ -21,11 +21,13 @@ class DateTimeEncoder(json.JSONEncoder):
 
 
 class JsonResponse(Response):
-    def __init__(self, baseObject):
+    def __init__(self, baseObject, requested_time):
         self.__class__ = type(baseObject.__class__.__name__,
                               (self.__class__, baseObject.__class__),
                               {})
         self.__dict__ = baseObject.__dict__
+        self.requested_time = requested_time
+        self.received_time = datetime.datetime.now(datetime.timezone.utc)
 
     def get_json(self):
         return json.loads(self.get_data().decode('utf8'))
@@ -40,13 +42,16 @@ class CustomClient(FlaskClient):
         kwargs['data'] = json.dumps(kwargs.get('data'), cls=DateTimeEncoder)
         kwargs['content_type'] = 'application/json'
 
-        return JsonResponse(super(CustomClient, self).post(*args, **kwargs))
+        requested_time = datetime.datetime.now(datetime.timezone.utc)
+        return JsonResponse(super(CustomClient, self).post(*args, **kwargs), requested_time=requested_time)
 
     def get(self, *args, **kwargs):
-        return JsonResponse(super(CustomClient, self).get(*args, **kwargs))
+        requested_time = datetime.datetime.now(datetime.timezone.utc)
+        return JsonResponse(super(CustomClient, self).get(*args, **kwargs), requested_time=requested_time)
 
     def post(self, *args, **kwargs):
-        return JsonResponse(super(CustomClient, self).post(*args, **kwargs))
+        requested_time = datetime.datetime.now(datetime.timezone.utc)
+        return JsonResponse(super(CustomClient, self).post(*args, **kwargs), requested_time=requested_time)
 
 
 @pytest.yield_fixture(scope='function')
@@ -55,6 +60,7 @@ def app(request):
     app.test_client_class = CustomClient
     context = app.app_context()
     context.push()
+
     db.create_all()
 
     yield app

@@ -12,15 +12,17 @@ def upgrade(migrate_engine):
     meta = MetaData()
     meta.bind = migrate_engine
 
-    batch = Table(
-        "batch",
+    role = Table(
+        "role",
         meta,
         Column("id", Integer, primary_key=True),
+        Column("name", NVARCHAR(80), unique=True),
+        Column("description", NVARCHAR(255)),
         Column("created_date", DateTime()),
-        Column("name", NVARCHAR(500), unique=True),
     )
 
-    batch.create()
+    role.create()
+
 
 def downgrade(migrate_engine):
     meta = MetaData()
