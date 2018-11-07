@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from bs4 import BeautifulSoup
 from batch_demographics.model import Batch
 from batch_demographics.database import db
 from tests.ui.test_ui_security import assert__requires_login_get
@@ -25,15 +24,14 @@ def test_batch_list(client, faker, batches):
         db.session.commit()
 
     resp = client.get('/')
-    soup = BeautifulSoup(resp.data, 'html.parser')
 
-    assert soup.find('a', href='/add') is not None
-    assert soup.find('table') is not None
-    assert soup.find('table')['class'] == ["table"]
-    assert len(soup.find('tbody').find_all('tr')) == batches
+    assert resp.soup.find('a', href='/add') is not None
+    assert resp.soup.find('table') is not None
+    assert resp.soup.find('table')['class'] == ["table"]
+    assert len(resp.soup.find('tbody').find_all('tr')) == batches
     assert all(
         tr.select_one('td:nth-of-type(1)').string.strip() in expected_names
-        for tr in soup.find('tbody').select('tr')
+        for tr in resp.soup.find('tbody').select('tr')
     )
 
 
@@ -41,23 +39,22 @@ def test_add_batch_get(client, faker):
     login(client, faker)
 
     resp = client.get("/add")
-    soup = BeautifulSoup(resp.data, 'html.parser')
 
     assert resp.status_code == 200
-    assert soup.find(
+    assert resp.soup.find(
         'form',
         {'method': 'POST'}
     ) is not None
-    assert soup.find(
+    assert resp.soup.find(
         'input',
         {'name': 'name', 'type': 'text'}
     ) is not None
-    assert soup.find(
+    assert resp.soup.find(
         'a',
         href='/',
         text='Cancel'
     ) is not None
-    assert soup.find(
+    assert resp.soup.find(
         'button',
         type='submit',
         text='Save'
