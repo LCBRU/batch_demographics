@@ -1,7 +1,7 @@
 import string
 import random
 
-from datetime import datetime, date, timezone
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from batch_demographics.database import db
 from batch_demographics.marshmallow import ma
