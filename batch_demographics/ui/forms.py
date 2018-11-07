@@ -1,7 +1,7 @@
 from flask import flash
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from wtforms.validators import Length, Required
+from wtforms.validators import Length, DataRequired
 
 
 class FlashingForm(FlaskForm):
@@ -19,4 +19,4 @@ class FlashingForm(FlaskForm):
 
 
 class BatchForm(FlashingForm):
-    name = StringField('Name', validators=[Required(), Length(max=100)])
+    name = StringField('Name', validators=[DataRequired(), Length(max=100)])

@@ -61,7 +61,7 @@ class CustomClient(FlaskClient):
 def app(request):
     app = batch_demographics.create_app(TestConfig)
     app.test_client_class = CustomClient
-    context = app.app_context()
+    context = app.test_request_context()
     context.push()
 
     db.create_all()
@@ -82,7 +82,7 @@ def client(app):
 def client_with_crsf(app):
     app = batch_demographics.create_app(TestConfigCRSF)
     app.test_client_class = CustomClient
-    context = app.app_context()
+    context = app.test_request_context()
     context.push()
     client = app.test_client()
 

@@ -29,6 +29,8 @@ class TestConfig(DevConfig):
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
     WTF_CSRF_ENABLED = False
     ADMIN_EMAIL_ADDRESSES = "rab63@le.ac.uk;richard.a.bramley@uhl-tr.nhs.uk"
+    SMTP_SERVER = None
+    SECURITY_SEND_PASSWORD_CHANGE_EMAIL = False
 
 
 class TestConfigCRSF(TestConfig):
