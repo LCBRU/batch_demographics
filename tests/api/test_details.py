@@ -142,8 +142,8 @@ def test_details_add_invalid_date(client, faker, date_string, error_message):
 
     print(data)
 
-    assert 'dob' in data
-    assert data['dob'] == [error_message]
+    assert 'dob' in data['0']
+    assert data['0']['dob'] == [error_message]
 
 
 def save_single_detail(client, detail):
