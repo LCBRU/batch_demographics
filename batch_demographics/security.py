@@ -103,7 +103,7 @@ def init_security(app):
         change_password_form=ChangePasswordForm,
     )
 
-    # @app.before_first_request
+    @app.before_first_request
     def create_admin_role_and_users():
         admin_role = user_datastore.find_or_create_role(
             name=Role.ADMIN_ROLENAME, description="Administration"
