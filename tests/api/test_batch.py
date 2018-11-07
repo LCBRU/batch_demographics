@@ -35,8 +35,8 @@ def test_batch_list(client, batches):
     ('test name'),
     ('*' * 100),
 ])
-def test_add_batch(client, name):
-    resp = client.post_json("/api/batch/", data=dict(name=name))
+def test_add_batch_works(client, name):
+    resp = client.post("/api/batch/", json=dict(name=name))
 
     assert resp.status_code == 200
     assert Batch.query.count() == 1
@@ -62,7 +62,7 @@ def test_add_batch(client, name):
     ('*' * 101),
 ])
 def test_add_batch_name_incorrect_length(client, name):
-    resp = client.post_json("/api/batch/", data=dict(name=name))
+    resp = client.post("/api/batch/", json=dict(name=name))
 
     assert resp.status_code == 400
     assert Batch.query.count() == 0

@@ -51,7 +51,8 @@ def batch_details(batch_id):
 @blueprint.route('/batch/<int:batch_id>/details/', methods=['POST'])
 def batch_details_post(batch_id):
     batch = Batch.query.get(batch_id)
-    result, errors = details_list_schema.load(request.get_json())
+
+    result, errors = details_list_schema.load(request.get_json()['details'])
 
     if errors:
         return jsonify(errors), 400

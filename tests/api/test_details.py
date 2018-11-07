@@ -56,7 +56,7 @@ def test_details_list(client, faker, num_of_details):
     (1),
     (10),
 ])
-def test_details_add(client, faker, num_of_details):
+def test_details_add_works(client, faker, num_of_details):
 
     batch = Batch(name='')
     db.session.add(batch)
@@ -67,9 +67,9 @@ def test_details_add(client, faker, num_of_details):
     for _ in range(num_of_details):
         expected_details.append(faker.daps_details())
 
-    resp = client.post_json(
+    resp = client.post(
         '/api/batch/{}/details/'.format(batch.id),
-        data=expected_details
+        json={'details': expected_details}
     )
 
     assert resp is not None
@@ -139,8 +139,11 @@ def test_details_add_invalid_date(client, faker, date_string, error_message):
     assert resp.status_code == 400
     assert Details.query.count() == 0
     data = resp.get_json()
-    assert 'dob' in data['0']
-    assert data['0']['dob'] == [error_message]
+
+    print(data)
+
+    assert 'dob' in data
+    assert data['dob'] == [error_message]
 
 
 def save_single_detail(client, detail):
@@ -148,11 +151,8 @@ def save_single_detail(client, detail):
     db.session.add(batch)
     db.session.commit()
 
-    details = []
-
-    details.append(detail)
-
-    return client.post_json(
+    details = {'details': [detail]}
+    return client.post(
         '/api/batch/{}/details/'.format(batch.id),
-        data=details
+        json=details
     )

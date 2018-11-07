@@ -21,37 +21,30 @@ class DateTimeEncoder(json.JSONEncoder):
 
 
 class JsonResponse(Response):
-    def __init__(self, baseObject, requested_time):
+    def __init__(self, baseObject, requested_time, received_time):
         self.__class__ = type(baseObject.__class__.__name__,
                               (self.__class__, baseObject.__class__),
                               {})
         self.__dict__ = baseObject.__dict__
         self.requested_time = requested_time
-        self.received_time = datetime.datetime.now(datetime.timezone.utc)
-
-    def get_json(self):
-        return json.loads(self.get_data().decode('utf8'))
+        self.received_time = received_time
 
 
 class CustomClient(FlaskClient):
     def __init__(self, *args, **kwargs):
         super(CustomClient, self).__init__(*args, **kwargs)
 
-    def post_json(self, *args, **kwargs):
-
-        kwargs['data'] = json.dumps(kwargs.get('data'), cls=DateTimeEncoder)
-        kwargs['content_type'] = 'application/json'
-
-        requested_time = datetime.datetime.now(datetime.timezone.utc)
-        return JsonResponse(super(CustomClient, self).post(*args, **kwargs), requested_time=requested_time)
-
     def get(self, *args, **kwargs):
         requested_time = datetime.datetime.now(datetime.timezone.utc)
-        return JsonResponse(super(CustomClient, self).get(*args, **kwargs), requested_time=requested_time)
+        response = super(CustomClient, self).get(*args, **kwargs)
+        received_time = datetime.datetime.now(datetime.timezone.utc)
+        return JsonResponse(response, requested_time, received_time)
 
     def post(self, *args, **kwargs):
         requested_time = datetime.datetime.now(datetime.timezone.utc)
-        return JsonResponse(super(CustomClient, self).post(*args, **kwargs), requested_time=requested_time)
+        response = super(CustomClient, self).post(*args, **kwargs)
+        received_time = datetime.datetime.now(datetime.timezone.utc)
+        return JsonResponse(response, requested_time, received_time)
 
 
 @pytest.yield_fixture(scope='function')
@@ -81,6 +74,8 @@ def client_with_crsf(app):
     context = app.app_context()
     context.push()
     client = app.test_client()
+
+    db.create_all()
 
     yield client
 
