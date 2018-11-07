@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for
+from flask_security import login_required
 from batch_demographics.database import db
 from batch_demographics.model import Batch
 from batch_demographics.ui.forms import BatchForm
@@ -13,6 +14,13 @@ def record(state):
     if db is None:
         raise Exception("This blueprint expects you to provide "
                         "database access through database")
+
+
+# Login required for all views
+@blueprint.before_request
+@login_required
+def before_request():
+    pass
 
 
 @blueprint.route('/')

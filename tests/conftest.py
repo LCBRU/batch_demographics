@@ -6,10 +6,12 @@ import datetime
 import batch_demographics
 from faker import Faker
 from faker.providers import BaseProvider
+from bs4 import BeautifulSoup
 from flask import Response
 from flask.testing import FlaskClient
 from batch_demographics.database import db
 from config import TestConfig, TestConfigCRSF
+from batch_demographics.model import User
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -20,7 +22,7 @@ class DateTimeEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-class JsonResponse(Response):
+class CustomResponse(Response):
     def __init__(self, baseObject, requested_time, received_time):
         self.__class__ = type(baseObject.__class__.__name__,
                               (self.__class__, baseObject.__class__),
@@ -28,6 +30,14 @@ class JsonResponse(Response):
         self.__dict__ = baseObject.__dict__
         self.requested_time = requested_time
         self.received_time = received_time
+        self._soup = None
+
+    @property
+    def soup(self):
+        if not self._soup:
+            self._soup = BeautifulSoup(self.data, "html.parser")
+
+        return self._soup
 
 
 class CustomClient(FlaskClient):
@@ -38,13 +48,13 @@ class CustomClient(FlaskClient):
         requested_time = datetime.datetime.now(datetime.timezone.utc)
         response = super(CustomClient, self).get(*args, **kwargs)
         received_time = datetime.datetime.now(datetime.timezone.utc)
-        return JsonResponse(response, requested_time, received_time)
+        return CustomResponse(response, requested_time, received_time)
 
     def post(self, *args, **kwargs):
         requested_time = datetime.datetime.now(datetime.timezone.utc)
         response = super(CustomClient, self).post(*args, **kwargs)
         received_time = datetime.datetime.now(datetime.timezone.utc)
-        return JsonResponse(response, requested_time, received_time)
+        return CustomResponse(response, requested_time, received_time)
 
 
 @pytest.yield_fixture(scope='function')
@@ -71,6 +81,7 @@ def client(app):
 @pytest.yield_fixture(scope='function')
 def client_with_crsf(app):
     app = batch_demographics.create_app(TestConfigCRSF)
+    app.test_client_class = CustomClient
     context = app.app_context()
     context.push()
     client = app.test_client()
@@ -83,6 +94,15 @@ def client_with_crsf(app):
 
 
 class NhsFakerProvider(BaseProvider):
+    def user_details(self):
+        u = User(
+            first_name=self.generator.first_name(),
+            last_name=self.generator.last_name(),
+            email=self.generator.email(),
+            active=True,
+        )
+        return u
+        
     def nhs_number(self):
         prefix = self.generator.random.randint(100000000, 999999999)
 

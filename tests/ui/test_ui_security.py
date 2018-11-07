@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import pytest
 from batch_demographics.model import User, Role
 from batch_demographics.database import db
 
@@ -45,3 +46,8 @@ def test_ui_security__admin_users_created(client):
     assert richard
     assert richard.password
     assert "admin" in richard.roles
+
+
+def assert__requires_login_get(client, path):
+    resp = client.get(path)
+    assert resp.status_code == 302

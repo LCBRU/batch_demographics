@@ -11,6 +11,16 @@ class DevConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     WTF_CSRF_ENABLED = True
     SECRET_KEY = "secret"
+    SECURITY_PASSWORD_SALT = "sale"
+    SQLALCHEMY_ECHO = False
+    SECURITY_TRACKABLE = "True"
+    SMTP_SERVER = "localhost"
+    ADMIN_EMAIL_ADDRESSES = "rab63@le.ac.uk"
+    ERROR_EMAIL_SUBJECT = "Batch Demographics Error"
+    MAIL_DEFAULT_SENDER = "lcbruit@leicester.ac.uk"
+    SECURITY_EMAIL_SENDER = "lcbruit@leicester.ac.uk"
+    SECURITY_CHANGEABLE = True
+    SECURITY_RECOVERABLE = True
 
 
 class TestConfig(DevConfig):

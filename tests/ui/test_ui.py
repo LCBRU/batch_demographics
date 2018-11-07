@@ -4,7 +4,8 @@ import pytest
 from bs4 import BeautifulSoup
 from batch_demographics.model import Batch
 from batch_demographics.database import db
-
+from tests.ui.test_ui_security import assert__requires_login_get
+from tests import login
 
 @pytest.mark.parametrize("batches", [
     (0),
@@ -12,7 +13,8 @@ from batch_demographics.database import db
     (10),
     (100),
 ])
-def test_batch_list(client, batches):
+def test_batch_list(client, faker, batches):
+    login(client, faker)
 
     expected_names = []
 
@@ -35,7 +37,9 @@ def test_batch_list(client, batches):
     )
 
 
-def test_add_batch_get(client):
+def test_add_batch_get(client, faker):
+    login(client, faker)
+
     resp = client.get("/add")
     soup = BeautifulSoup(resp.data, 'html.parser')
 
@@ -64,7 +68,9 @@ def test_add_batch_get(client):
     ('test name'),
     ('*' * 100),
 ])
-def test_add_batch_post(client, name):
+def test_add_batch_post(client, faker, name):
+    login(client, faker)
+
     resp = client.post("/add", data=dict(name=name))
 
     assert resp.status_code == 302
@@ -83,8 +89,18 @@ def test_add_batch_post(client, name):
     (''),
     ('*' * 101),
 ])
-def test_add_batch_post_name_incorrect_length(client, name):
+def test_add_batch_post_name_incorrect_length(client, faker, name):
+    login(client, faker)
+
     resp = client.post("/add", data=dict(name=name))
 
     assert resp.status_code == 200
     assert Batch.query.count() == 0
+
+
+@pytest.mark.parametrize("path", [
+    ('/'),
+    ('/add'),
+])
+def test_ui__path_requires_login(client, path):
+    assert__requires_login_get(client, path)
