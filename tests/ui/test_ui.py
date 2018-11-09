@@ -26,7 +26,7 @@ def test_batch_list(client, faker, batches):
 
     resp = client.get('/')
 
-    assert resp.soup.find('a', href='/add') is not None
+    assert resp.soup.find('a', href='/upload') is not None
     assert resp.soup.find('table') is not None
     assert resp.soup.find('table')['class'] == ["table"]
     assert len(resp.soup.find('tbody').find_all('tr')) == batches
@@ -36,10 +36,10 @@ def test_batch_list(client, faker, batches):
     )
 
 
-def test_add_batch_get(client, faker):
+def test_upload_batch_get(client, faker):
     login(client, faker)
 
-    resp = client.get("/add")
+    resp = client.get("/upload")
 
     assert resp.status_code == 200
     assert resp.soup.find(
@@ -66,10 +66,10 @@ def test_add_batch_get(client, faker):
     ('test name'),
     ('*' * 100),
 ])
-def test_add_batch_post(client, faker, name):
+def test_upload_batch_post(client, faker, name):
     login(client, faker)
 
-    resp = client.post("/add", data=dict(name=name))
+    resp = client.post("/upload", data=dict(name=name))
 
     assert resp.status_code == 302
     assert resp.location == 'http://localhost/'
@@ -87,10 +87,10 @@ def test_add_batch_post(client, faker, name):
     (''),
     ('*' * 101),
 ])
-def test_add_batch_post_name_incorrect_length(client, faker, name):
+def test_upload_batch_post_name_incorrect_length(client, faker, name):
     login(client, faker)
 
-    resp = client.post("/add", data=dict(name=name))
+    resp = client.post("/upload", data=dict(name=name))
 
     assert resp.status_code == 200
     assert Batch.query.count() == 0
@@ -98,14 +98,14 @@ def test_add_batch_post_name_incorrect_length(client, faker, name):
 
 @pytest.mark.parametrize("path", [
     ('/'),
-    ('/add'),
+    ('/upload'),
 ])
 def test_ui__path_requires_login(client, path):
     assert__requires_login_get(client, path)
 
 
 @pytest.mark.parametrize("path", [
-    ('/add')
+    ('/upload')
 ])
 def test_ui__forms_csrf_token(client_with_crsf, faker, path):
     assert__forms_csrf_token(client_with_crsf, faker, path)
@@ -113,7 +113,7 @@ def test_ui__forms_csrf_token(client_with_crsf, faker, path):
 
 @pytest.mark.parametrize("path", [
     ('/'),
-    ('/add')
+    ('/upload')
 ])
 def test_ui__html_boilerplate(client, faker, path):
     assert__html_boilerplate(client, faker, path)
@@ -121,7 +121,7 @@ def test_ui__html_boilerplate(client, faker, path):
 
 @pytest.mark.parametrize("path", [
     ('/'),
-    ('/add')
+    ('/upload')
 ])
 def test_ui__html_menu(client, faker, path):
     assert__html_menu(client, faker, path)

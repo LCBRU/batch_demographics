@@ -29,6 +29,7 @@ def assert__html_menu(client, faker, path):
     resp = client.get(path)
 
     assert resp.soup.find("a", href=url_for("ui.index")) is not None
+    assert resp.soup.find("a", string=" Upload Participant Details", href=url_for("ui.upload")) is not None
     assert resp.soup.find(lambda tag:tag.name=="a" and u.full_name in tag.text) is not None
     assert resp.soup.find("a", string="Change Password", href=url_for("security.change_password")) is not None
     assert resp.soup.find("a", string="Log Out", href=url_for("security.logout")) is not None

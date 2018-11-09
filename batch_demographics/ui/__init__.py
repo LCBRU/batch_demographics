@@ -31,8 +31,8 @@ def index(page=1):
     return render_template('index.html', batches=batches)
 
 
-@blueprint.route('/add', methods=['GET', 'POST'])
-def add():
+@blueprint.route('/upload', methods=['GET', 'POST'])
+def upload():
     form = BatchForm()
 
     if form.validate_on_submit():

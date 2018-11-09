@@ -10,7 +10,7 @@ from tests.ui.test_ui_boilerplate import assert__forms_csrf_token, assert__html_
 
 @pytest.mark.parametrize("path", [
     ('/'),
-    ('/add'),
+    ('/upload'),
 ])
 def test_ui__path_requires_login(client, path):
     assert__requires_login_get(client, path)

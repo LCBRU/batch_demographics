@@ -14,6 +14,7 @@
     {% if current_user.is_active %}
       <ul class="nav navbar-nav">
         <li><a class="navbar-brand fas fa-home" href="{{ url_for('ui.index') }}"></a></li>
+        <li><a class="fas fa-upload" href="{{ url_for('ui.upload') }}"> Upload Participant Details</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
