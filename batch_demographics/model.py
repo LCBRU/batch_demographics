@@ -63,6 +63,12 @@ class User(db.Model, UserMixin):
     def __str__(self):
         return self.email
 
+    @property
+    def full_name(self):
+        full_name = " ".join(filter(None, [self.first_name, self.last_name]))
+
+        return full_name or self.email
+
 
 class Batch(db.Model):
 
