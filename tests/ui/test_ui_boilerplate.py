@@ -1,36 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from tests import login
+from tests import login as login_user
 
 
-def test_missing_route(client):
-    resp = client.get('/uihfihihf')
-    assert resp.status_code == 404
-
-
-@pytest.mark.parametrize("path", [
-    ('/favicon.ico'),
-    ('/static/css/main.css'),
-    ('/static/img/nihr-logo-70.png'),
-    ('/static/img/cropped-favicon-32x32.png'),
-    ('/static/img/cropped-favicon-192x192.png'),
-    ('/static/img/cropped-favicon-180x180.png'),
-    ('/static/img/cropped-favicon-270x270.png'),
-    ('/static/js/main.js'),
-])
-def test_url_exists_without_login(client, path):
-    resp = client.get(path)
-
-    assert resp.status_code == 200
-
-
-@pytest.mark.parametrize("path", [
-    ('/'),
-    ('/add')
-])
-def test_html_boilerplate(client, faker, path):
-    login(client, faker)
+def assert__html_boilerplate(client, faker, path, login=True):
+    if login:
+        login_user(client, faker)
 
     resp = client.get(path)
 
@@ -46,13 +22,13 @@ def test_html_boilerplate(client, faker, path):
     assert resp.soup.body is not None
 
 
-@pytest.mark.parametrize("path", [
-    ('/add')
-])
-def test_forms_csrf_token(client_with_crsf, faker, path):
-    login(client_with_crsf, faker)
+def assert__forms_csrf_token(client_with_crsf, faker, path, login=True):
+    if login:
+        login_user(client_with_crsf, faker)
 
     resp = client_with_crsf.get(path)
+
+    print(resp.soup.prettify())
 
     assert resp.soup.find(
         'input',

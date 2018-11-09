@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 from batch_demographics.model import User, Role
 from batch_demographics.database import db
+
+
+def assert__url_exists_without_login(client, path):
+    resp = client.get(path)
+
+    assert resp.status_code == 200
 
 
 def test_ui_security__admin_role_created(client):
