@@ -8,6 +8,7 @@ from tests.ui.test_ui_boilerplate import assert__forms_csrf_token, assert__html_
 from tests import login
 from tests.ui_tools import assert_field_in_error_display
 
+
 def test_ui_upload__batch_get(client, faker):
     login(client, faker)
 
@@ -42,27 +43,31 @@ def test_ui_upload__batch_get(client, faker):
     ('test name'),
     ('*' * 100),
 ])
-def test_ui_upload__batch_post(client, faker, name):
+def test_ui_upload__batch_post(client, faker, upload_files, name):
     login(client, faker)
 
     file_details = faker.participant_file_details()
 
-    data = dict(name=name, participant_file=file_details)
+    data = dict(name=name, participant_file=file_details['attachment'])
 
     resp = client.post("/upload", data=data)
 
     assert resp.status_code == 302
     assert resp.location == 'http://localhost/'
     assert Batch.query.count() == 1
-    assert Batch.query.filter(
+    batch = Batch.query.filter(
         Batch.name == name
     ).filter(
-        Batch.filename == file_details[1]
+        Batch.filename == file_details['filename']
     ).filter(
         Batch.created_date > resp.requested_time
     ).filter(
         Batch.created_date < resp.received_time
-    ).count() == 1
+    ).one()
+
+    assert batch
+
+    upload_files.assert_file_created(batch, file_details['content'])
 
 
 @pytest.mark.parametrize("name", [
@@ -72,7 +77,7 @@ def test_ui_upload__batch_post(client, faker, name):
 def test_ui_upload__batch_post_name_incorrect_length(client, faker, name):
     login(client, faker)
 
-    data = dict(name=name, participant_file=faker.participant_file_details())
+    data = dict(name=name, participant_file=faker.participant_file_details()['attachment'])
 
     resp = client.post("/upload", data=data)
 

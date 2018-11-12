@@ -22,6 +22,7 @@ class DevConfig(object):
     SECURITY_CHANGEABLE = True
     SECURITY_RECOVERABLE = True
     SECURITY_SEND_PASSWORD_RESET_EMAIL = False
+    FILE_UPLOAD_DIRECTORY = os.path.join(os.path.dirname(__file__), "file_uploads")
 
 
 class TestConfig(DevConfig):
@@ -32,6 +33,7 @@ class TestConfig(DevConfig):
     ADMIN_EMAIL_ADDRESSES = "rab63@le.ac.uk;richard.a.bramley@uhl-tr.nhs.uk"
     SMTP_SERVER = None
     SECURITY_SEND_PASSWORD_CHANGE_EMAIL = False
+    FILE_UPLOAD_DIRECTORY = os.path.join(os.path.dirname(__file__), "test_file_uploads")
 
 
 class TestConfigCRSF(TestConfig):

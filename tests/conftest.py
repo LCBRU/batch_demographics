@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+import shutil
 import json
 import pytest
 import datetime
@@ -8,11 +10,12 @@ from io import BytesIO
 from faker import Faker
 from faker.providers import BaseProvider
 from bs4 import BeautifulSoup
-from flask import Response
+from flask import Response, current_app
 from flask.testing import FlaskClient
 from batch_demographics.database import db
 from config import TestConfig, TestConfigCRSF
 from batch_demographics.model import User
+from batch_demographics.files import batch_file_path
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -94,6 +97,30 @@ def client_with_crsf(app):
     context.pop()
 
 
+class UploadFiles:
+    def assert_file_created(self, batch, content):
+        saved_filepath = batch_file_path(batch)
+        
+        assert os.path.isfile(saved_filepath)
+
+        with open(saved_filepath, 'r') as f:
+            content_saved = f.read()
+            assert content_saved == content       
+
+    def cleanup(self):
+        path = current_app.config["FILE_UPLOAD_DIRECTORY"]
+        shutil.rmtree(path)
+
+
+@pytest.yield_fixture(scope='function')
+def upload_files(app):
+    result = UploadFiles()
+
+    yield result
+
+    result.cleanup()
+
+
 class NhsFakerProvider(BaseProvider):
     def user_details(self):
         u = User(
@@ -108,10 +135,14 @@ class NhsFakerProvider(BaseProvider):
         content = self.generator.text()
         filename = self.generator.file_name(extension='csv')
 
-        return (
-            BytesIO(content.encode('utf-8')),
-            filename
-        )
+        return {
+            'filename': filename,
+            'content': content,
+            'attachment': (
+                BytesIO(content.encode('utf-8')),
+                filename
+            )
+        }
         
     def nhs_number(self):
         prefix = self.generator.random.randint(100000000, 999999999)

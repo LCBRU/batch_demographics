@@ -3,6 +3,7 @@ from flask_security import login_required
 from batch_demographics.database import db
 from batch_demographics.model import Batch
 from batch_demographics.ui.forms import BatchForm
+from batch_demographics.files import save_file
 
 
 blueprint = Blueprint('ui', __name__, template_folder='templates')
@@ -37,11 +38,14 @@ def upload():
 
     if form.validate_on_submit():
 
-        db.session.add(Batch(
+        batch = Batch(
             name=form.data['name'],
             filename=form.data['participant_file'].filename,
-            ))
+        )
+        db.session.add(batch)
         db.session.commit()
+
+        save_file(batch, form.data['participant_file'])
 
         return redirect(url_for('ui.index'))
 
