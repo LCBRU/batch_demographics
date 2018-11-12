@@ -4,6 +4,7 @@ import json
 import pytest
 import datetime
 import batch_demographics
+from io import BytesIO
 from faker import Faker
 from faker.providers import BaseProvider
 from bs4 import BeautifulSoup
@@ -102,6 +103,15 @@ class NhsFakerProvider(BaseProvider):
             active=True,
         )
         return u
+        
+    def participant_file_details(self):
+        content = self.generator.text()
+        filename = self.generator.file_name(extension='csv')
+
+        return (
+            BytesIO(content.encode('utf-8')),
+            filename
+        )
         
     def nhs_number(self):
         prefix = self.generator.random.randint(100000000, 999999999)

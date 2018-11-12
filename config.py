@@ -21,6 +21,7 @@ class DevConfig(object):
     SECURITY_EMAIL_SENDER = "lcbruit@leicester.ac.uk"
     SECURITY_CHANGEABLE = True
     SECURITY_RECOVERABLE = True
+    SECURITY_SEND_PASSWORD_RESET_EMAIL = False
 
 
 class TestConfig(DevConfig):

@@ -3,11 +3,12 @@
 import pytest
 from batch_demographics.model import Batch
 from batch_demographics.database import db
-from tests.ui.test_ui_security import assert__requires_login_get, assert__url_exists_without_login
+from tests.ui.test_ui_security import assert__requires_login_get
 from tests.ui.test_ui_boilerplate import assert__forms_csrf_token, assert__html_boilerplate, assert__html_menu
 from tests import login
+from tests.ui_tools import assert_field_in_error_display
 
-def test_upload_batch_get(client, faker):
+def test_ui_upload__batch_get(client, faker):
     login(client, faker)
 
     resp = client.get("/upload")
@@ -20,6 +21,10 @@ def test_upload_batch_get(client, faker):
     assert resp.soup.find(
         'input',
         {'name': 'name', 'type': 'text'}
+    ) is not None
+    assert resp.soup.find(
+        'input',
+        {'name': 'participant_file', 'type': 'file'}
     ) is not None
     assert resp.soup.find(
         'a',
@@ -37,10 +42,12 @@ def test_upload_batch_get(client, faker):
     ('test name'),
     ('*' * 100),
 ])
-def test_upload_batch_post(client, faker, name):
+def test_ui_upload__batch_post(client, faker, name):
     login(client, faker)
 
-    resp = client.post("/upload", data=dict(name=name))
+    data = dict(name=name, participant_file=faker.participant_file_details())
+
+    resp = client.post("/upload", data=data)
 
     assert resp.status_code == 302
     assert resp.location == 'http://localhost/'
@@ -53,18 +60,43 @@ def test_upload_batch_post(client, faker, name):
         Batch.created_date < resp.received_time
     ).count() == 1
 
+    batch = Batch.query.filter(
+        Batch.name == name
+    ).filter(
+        Batch.created_date > resp.requested_time
+    ).filter(
+        Batch.created_date < resp.received_time
+    ).one()
+
 
 @pytest.mark.parametrize("name", [
     (''),
     ('*' * 101),
 ])
-def test_upload_batch_post_name_incorrect_length(client, faker, name):
+def test_ui_upload__batch_post_name_incorrect_length(client, faker, name):
     login(client, faker)
 
-    resp = client.post("/upload", data=dict(name=name))
+    data = dict(name=name, participant_file=faker.participant_file_details())
+
+    resp = client.post("/upload", data=data)
 
     assert resp.status_code == 200
     assert Batch.query.count() == 0
+
+    assert_field_in_error_display(resp, 'Name')
+
+
+def test_ui_upload__batch_post_file_missing(client, faker):
+    login(client, faker)
+
+    data = dict(name='frederick')
+
+    resp = client.post("/upload", data=data)
+
+    assert resp.status_code == 200
+    assert Batch.query.count() == 0
+
+    assert_field_in_error_display(resp, 'Participants File')
 
 
 @pytest.mark.parametrize("path", [

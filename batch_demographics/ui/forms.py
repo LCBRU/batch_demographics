@@ -2,6 +2,7 @@ from flask import flash
 from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import Length, DataRequired
+from flask_wtf.file import FileField, FileRequired
 
 
 class FlashingForm(FlaskForm):
@@ -20,3 +21,4 @@ class FlashingForm(FlaskForm):
 
 class BatchForm(FlashingForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
+    participant_file = FileField('Participants File', validators=[FileRequired()])
