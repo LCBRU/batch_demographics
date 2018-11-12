@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for
-from flask_security import login_required
+from flask_security import login_required, current_user
 from batch_demographics.database import db
 from batch_demographics.model import Batch
 from batch_demographics.ui.forms import BatchForm
@@ -41,6 +41,7 @@ def upload():
         batch = Batch(
             name=form.data['name'],
             filename=form.data['participant_file'].filename,
+            user=current_user,
         )
         db.session.add(batch)
         db.session.commit()

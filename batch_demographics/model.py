@@ -76,6 +76,15 @@ class Batch(db.Model):
     name = db.Column(db.String(100))
     filename = db.Column(db.String(500))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        "User",
+        backref=db.backref(
+            'batches',
+            order_by=id,
+            cascade="all, delete-orphan",
+        ))
+
 
 
 class BatchSchema(ma.ModelSchema):

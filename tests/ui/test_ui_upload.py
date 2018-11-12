@@ -44,7 +44,7 @@ def test_ui_upload__batch_get(client, faker):
     ('*' * 100),
 ])
 def test_ui_upload__batch_post(client, faker, upload_files, name):
-    login(client, faker)
+    u = login(client, faker)
 
     file_details = faker.participant_file_details()
 
@@ -57,6 +57,8 @@ def test_ui_upload__batch_post(client, faker, upload_files, name):
     assert Batch.query.count() == 1
     batch = Batch.query.filter(
         Batch.name == name
+    ).filter(
+        Batch.user == u
     ).filter(
         Batch.filename == file_details['filename']
     ).filter(
