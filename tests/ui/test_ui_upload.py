@@ -45,7 +45,9 @@ def test_ui_upload__batch_get(client, faker):
 def test_ui_upload__batch_post(client, faker, name):
     login(client, faker)
 
-    data = dict(name=name, participant_file=faker.participant_file_details())
+    file_details = faker.participant_file_details()
+
+    data = dict(name=name, participant_file=file_details)
 
     resp = client.post("/upload", data=data)
 
@@ -55,18 +57,12 @@ def test_ui_upload__batch_post(client, faker, name):
     assert Batch.query.filter(
         Batch.name == name
     ).filter(
+        Batch.filename == file_details[1]
+    ).filter(
         Batch.created_date > resp.requested_time
     ).filter(
         Batch.created_date < resp.received_time
     ).count() == 1
-
-    batch = Batch.query.filter(
-        Batch.name == name
-    ).filter(
-        Batch.created_date > resp.requested_time
-    ).filter(
-        Batch.created_date < resp.received_time
-    ).one()
 
 
 @pytest.mark.parametrize("name", [

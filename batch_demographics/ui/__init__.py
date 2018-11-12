@@ -37,7 +37,10 @@ def upload():
 
     if form.validate_on_submit():
 
-        db.session.add(Batch(name=form.data['name']))
+        db.session.add(Batch(
+            name=form.data['name'],
+            filename=form.data['participant_file'].filename,
+            ))
         db.session.commit()
 
         return redirect(url_for('ui.index'))
