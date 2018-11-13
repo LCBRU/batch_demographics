@@ -3,7 +3,8 @@
 import re
 from flask import url_for
 from tests import login as login_user
-
+import urllib
+    
 
 def assert__html_boilerplate(client, faker, path, login=True):
     if login:
@@ -41,11 +42,36 @@ def assert__forms_csrf_token(client_with_crsf, faker, path, login=True):
 
     resp = client_with_crsf.get(path)
 
-    print(resp.soup.prettify())
-
     assert resp.soup.find(
         'input',
         {'name': 'csrf_token'},
         type='hidden',
         id='csrf_token',
     ) is not None
+
+
+def assert__paginator(resp, prev_page, next_page, active_page):
+
+    assert__page_link(resp, page=prev_page, rel='prev', text='Previous')
+    assert__page_link(resp, page=next_page, rel='next', text='Next')
+    assert__page_link(resp, page=active_page, rel='', text=str(active_page), active=True)
+
+
+def assert__page_link(resp, page, rel, text, active=False):
+
+    link = resp.soup.find(
+        'a',
+        string=text,
+    )
+
+    assert link
+
+    if active:
+        assert 'active' in link.parent['class']
+    elif page:
+        assert rel in link['rel']
+        qs = urllib.parse.urlparse(link['href']).query
+        dqs = dict(urllib.parse.parse_qsl(qs))
+        assert dqs['page'] == str(page)
+    else:
+        assert 'disabled' in link.parent['class']

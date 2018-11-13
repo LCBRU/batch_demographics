@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request, current_app
 from flask_security import login_required, current_user
 from batch_demographics.database import db
 from batch_demographics.model import Batch
-from batch_demographics.ui.forms import BatchForm
+from batch_demographics.ui.forms import BatchForm, SearchForm
 from batch_demographics.files import save_file
 
 
@@ -25,13 +25,22 @@ def before_request():
 
 
 @blueprint.route('/')
-@blueprint.route("/<int:page>")
-def index(page=1):
+def index():
+    searchForm = SearchForm(formdata=request.args)
+
     batches = Batch.query.filter(
         Batch.user == current_user,
-    ).all()
+    ).paginate(
+        page=searchForm.page.data,
+        per_page=current_app.config["PAGE_SIZE"],
+        error_out=False,
+    )
 
-    return render_template('index.html', batches=batches)
+    return render_template(
+        'index.html',
+        batches=batches,
+        searchForm=searchForm,
+    )
 
 
 @blueprint.route('/upload', methods=['GET', 'POST'])

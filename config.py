@@ -23,6 +23,7 @@ class DevConfig(object):
     SECURITY_RECOVERABLE = True
     SECURITY_SEND_PASSWORD_RESET_EMAIL = False
     FILE_UPLOAD_DIRECTORY = os.path.join(os.path.dirname(__file__), "file_uploads")
+    PAGE_SIZE = 10
 
 
 class TestConfig(DevConfig):

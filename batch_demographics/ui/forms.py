@@ -1,6 +1,6 @@
 from flask import flash
 from flask_wtf import FlaskForm
-from wtforms import StringField
+from wtforms import IntegerField, StringField
 from wtforms.validators import Length, DataRequired
 from flask_wtf.file import FileField, FileRequired
 
@@ -17,6 +17,11 @@ class FlashingForm(FlaskForm):
                             getattr(self, field).label.text, error
                         ), 'error')
         return result
+
+
+class SearchForm(FlashingForm):
+    search = StringField("Search", validators=[Length(max=20)])
+    page = IntegerField("Page", default=1)
 
 
 class BatchForm(FlashingForm):
