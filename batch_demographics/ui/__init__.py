@@ -27,7 +27,9 @@ def before_request():
 @blueprint.route('/')
 @blueprint.route("/<int:page>")
 def index(page=1):
-    batches = Batch.query.all()
+    batches = Batch.query.filter(
+        Batch.user == current_user,
+    ).all()
 
     return render_template('index.html', batches=batches)
 

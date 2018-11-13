@@ -14,7 +14,7 @@ from flask import Response, current_app
 from flask.testing import FlaskClient
 from batch_demographics.database import db
 from config import TestConfig, TestConfigCRSF
-from batch_demographics.model import User
+from batch_demographics.model import User, Batch
 from batch_demographics.files import batch_file_path
 
 
@@ -143,6 +143,14 @@ class NhsFakerProvider(BaseProvider):
                 filename
             )
         }
+        
+    def batch_details(self):
+        b = Batch(
+            name=self.generator.text(),
+            filename=self.generator.file_name(extension='csv'),
+        )
+
+        return b
         
     def nhs_number(self):
         prefix = self.generator.random.randint(100000000, 999999999)
