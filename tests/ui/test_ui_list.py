@@ -120,6 +120,23 @@ def test_ui__user_batch_list_middle_page(client, faker, pages):
     )
 
 
+def test_ui__user_batch_list_beyond_last_page(client, faker):
+    page_size = current_app.config["PAGE_SIZE"]
+
+    u = login(client, faker)
+    u2 = create_user(faker)
+
+    batches = page_size
+    page = 2
+
+    _create_batches(u, batches, faker)
+    _create_batches(u2, batches, faker)
+
+    resp = client.get('/?page={}'.format(page))
+
+    assert resp.status_code == 200
+
+
 def _create_batches(user, number, faker):
     result = []
 
