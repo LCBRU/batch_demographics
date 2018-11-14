@@ -26,12 +26,17 @@ def before_request():
 
 @blueprint.route('/')
 def index():
-    searchForm = SearchForm(formdata=request.args)
+    search_form = SearchForm(formdata=request.args)
 
-    batches = Batch.query.filter(
+    q = Batch.query.filter(
         Batch.user == current_user,
-    ).paginate(
-        page=searchForm.page.data,
+    )
+    
+    if search_form.search.data:
+        q = q.filter(Batch.name.ilike('%{}%'.format(search_form.search.data)))
+
+    batches = q.paginate(
+        page=search_form.page.data,
         per_page=current_app.config["PAGE_SIZE"],
         error_out=False,
     )
@@ -39,7 +44,7 @@ def index():
     return render_template(
         'index.html',
         batches=batches,
-        searchForm=searchForm,
+        searchForm=search_form,
     )
 
 

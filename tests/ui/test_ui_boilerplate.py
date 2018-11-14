@@ -50,6 +50,32 @@ def assert__forms_csrf_token(client_with_crsf, faker, path, login=True):
     ) is not None
 
 
+def assert__search(client_with_crsf, faker, path, login=True):
+    if login:
+        login_user(client_with_crsf, faker)
+
+    resp = client_with_crsf.get(path)
+
+    assert resp.soup.find(
+        'input',
+        {'name': 'search'},
+        type='text',
+        id='search',
+    ) is not None
+
+    assert resp.soup.find(
+        'button',
+        type='submit',
+        text='Search',
+    ) is not None
+
+    assert resp.soup.find(
+        'a',
+        href=path,
+        text='Clear Search',
+    ) is not None
+
+
 def assert__paginator(resp, prev_page, next_page, active_page):
 
     assert__page_link(resp, page=prev_page, rel='prev', text='Previous')

@@ -4,11 +4,26 @@
 {% block content %}
 
 <section>
-  <h2>Demographics Lookup Jobs</h2>
-  <table class="table">
+  <div class="page-header">
+    <h1>Demographics Lookup Batches</h1>
+
+    <form method="GET" id="searchForm" class="form-horizontal" action="{{ url_for('ui.index') }}">
+
+        <div class="input-group">
+            {{ searchForm.search(class="form-control", placeholder="enter text to search batch names") | safe }}
+            <div class="input-group-btn">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a class="btn btn-primary" href="{{ url_for('ui.index') }}">Clear Search</a>
+            </div>
+        </div>
+      </form>
+  </div>
+
+  <table class="table table-striped">
     <thead>
       <tr>
-        <th></th>
+        <th>Name</th>
+        <th>Date Uploaded</th>
       </tr>
     </thead>
     <tbody>
@@ -18,7 +33,7 @@
           {{ b.name }}
         </td>
         <td>
-          {{ Something }}
+          {{ b.created_date | date_format }}
         </td>
       </tr>
     {% endfor %}
