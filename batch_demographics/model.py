@@ -76,6 +76,7 @@ class Batch(db.Model):
     name = db.Column(db.String(100))
     filename = db.Column(db.String(500))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    deleted = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship(
         "User",

@@ -2,11 +2,12 @@
 
 import pytest
 from flask import url_for
-from tests import login
+from tests.ui_tools import login
 from batch_demographics.model import User
 from batch_demographics.database import db
 from tests.ui.test_ui_security import assert__requires_login_get, assert__url_exists_without_login
 from tests.ui.test_ui_boilerplate import assert__forms_csrf_token, assert__html_boilerplate
+
 
 @pytest.mark.parametrize("path", [
     ('/'),

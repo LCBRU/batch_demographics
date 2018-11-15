@@ -56,3 +56,8 @@ def test_ui_security__admin_users_created(client):
 def assert__requires_login_get(client, path):
     resp = client.get(path)
     assert resp.status_code == 302
+
+
+def assert__requires_login_post(client, path):
+    resp = client.post(path)
+    assert resp.status_code == 302

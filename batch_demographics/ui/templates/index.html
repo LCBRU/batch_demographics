@@ -24,6 +24,7 @@
       <tr>
         <th>Name</th>
         <th>Date Uploaded</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -35,12 +36,51 @@
         <td>
           {{ b.created_date | date_format }}
         </td>
+        <td class="text-right">
+          <a class="btn btn-primary" href="{{ url_for('ui.delete') }}" data-toggle="modal" data-target="#deleteBatchModal" data-id="{{ b.id }}">Delete</a>
+        </td>
       </tr>
     {% endfor %}
     </tbody>
-  </table>  
+  </table>
 </section>
+
+<!-- Delete Confirmation Dialog -->
+<div class="modal fade" id="deleteBatchModal" tabindex="-1" role="dialog" aria-labelledby="deleteBatchModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="deleteBatchModalLabel">Delete Batch</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body">
+          Are you sure you want to delete this batch?
+      </div>
+      <div class="modal-footer">
+          <form action="{{ url_for('ui.delete') }}" method="POST">
+              {{ confirm_form.hidden_tag() }}
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
+          </form>
+      </div>
+      </div>
+  </div>
+</div>
 
 {{ formhelper.render_pagination(batches, 'ui.index', search=searchForm.search.data) }}
 
+{% endblock %}
+
+{% block js %}
+<script>
+    $('#deleteBatchModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var id = button.data('id')
+
+        var modal = $(this)
+        modal.find('.modal-footer input#id').val(id)
+    })
+</script>
 {% endblock %}

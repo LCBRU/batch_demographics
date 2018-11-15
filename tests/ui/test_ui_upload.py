@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+from flask import url_for
 from batch_demographics.model import Batch
-from batch_demographics.database import db
-from tests.ui.test_ui_security import assert__requires_login_get
+from tests.ui.test_ui_security import assert__requires_login_get, assert__requires_login_post
 from tests.ui.test_ui_boilerplate import assert__forms_csrf_token, assert__html_boilerplate, assert__html_menu
-from tests import login
-from tests.ui_tools import assert_field_in_error_display
+from tests.ui_tools import assert_field_in_error_display, login
 
 
 def test_ui_upload__batch_get(client, faker):
@@ -102,29 +101,17 @@ def test_ui_upload__batch_post_file_missing(client, faker):
     assert_field_in_error_display(resp, 'Participants File')
 
 
-@pytest.mark.parametrize("path", [
-    ('/upload'),
-])
-def test_ui__path_requires_login(client, path):
-    assert__requires_login_get(client, path)
+def test_ui__path_requires_login_get(client):
+    assert__requires_login_get(client, url_for('ui.upload'))
 
+def test_ui__path_requires_login_post(client):
+    assert__requires_login_post(client, url_for('ui.upload'))
 
-@pytest.mark.parametrize("path", [
-    ('/upload')
-])
-def test_ui__forms_csrf_token(client_with_crsf, faker, path):
-    assert__forms_csrf_token(client_with_crsf, faker, path)
+def test_ui__forms_csrf_token(client_with_crsf, faker):
+    assert__forms_csrf_token(client_with_crsf, faker, url_for('ui.upload'))
 
+def test_ui__html_boilerplate(client, faker):
+    assert__html_boilerplate(client, faker, url_for('ui.upload'))
 
-@pytest.mark.parametrize("path", [
-    ('/upload')
-])
-def test_ui__html_boilerplate(client, faker, path):
-    assert__html_boilerplate(client, faker, path)
-
-
-@pytest.mark.parametrize("path", [
-    ('/upload')
-])
-def test_ui__html_menu(client, faker, path):
-    assert__html_menu(client, faker, path)
+def test_ui__html_menu(client, faker):
+    assert__html_menu(client, faker, url_for('ui.upload'))

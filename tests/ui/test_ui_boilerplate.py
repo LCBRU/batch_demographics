@@ -2,7 +2,7 @@
 
 import re
 from flask import url_for
-from tests import login as login_user
+from tests.ui_tools import login as login_user
 import urllib
     
 

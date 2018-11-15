@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for, request, current_app
+from flask import Blueprint, render_template, redirect, url_for, request, current_app, abort
 from flask_security import login_required, current_user
 from batch_demographics.database import db
 from batch_demographics.model import Batch
-from batch_demographics.ui.forms import BatchForm, SearchForm
+from batch_demographics.ui.forms import BatchForm, SearchForm, ConfirmForm
 from batch_demographics.files import save_file
 
 
@@ -29,7 +29,9 @@ def index():
     search_form = SearchForm(formdata=request.args)
 
     q = Batch.query.filter(
-        Batch.user == current_user,
+        Batch.user == current_user
+    ).filter(
+        Batch.deleted == False
     )
     
     if search_form.search.data:
@@ -45,6 +47,7 @@ def index():
         'index.html',
         batches=batches,
         searchForm=search_form,
+        confirm_form=ConfirmForm(),
     )
 
 
@@ -68,4 +71,21 @@ def upload():
 
     else:
 
-        return render_template('edit.html', form=form)
+        return render_template('upload.html', form=form)
+
+
+@blueprint.route('/delete', methods=['POST'])
+def delete():
+    form = ConfirmForm()
+
+    if form.validate_on_submit():
+        batch = Batch.query.get_or_404(form.id.data)
+
+        if batch.user != current_user:
+            abort(403)
+
+        batch.deleted = 1
+
+        db.session.commit()
+
+    return redirect(request.referrer or url_for('ui.index'))

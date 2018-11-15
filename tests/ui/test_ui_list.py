@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from flask import current_app
-from batch_demographics.model import Batch
-from batch_demographics.database import db
+import urllib
+from flask import current_app, url_for
 from tests.ui.test_ui_security import assert__requires_login_get, assert__url_exists_without_login
 from tests.ui.test_ui_boilerplate import assert__html_boilerplate, assert__html_menu, assert__paginator, assert__search
-from tests import login, create_user
+from tests.ui_tools import login
+from tests.model_tools import create_batches, update_batch, create_user
 
 
 @pytest.mark.parametrize("my_batches, other_user_batches", [
@@ -20,8 +20,8 @@ def test_ui_list__user_batch_list(client, faker, my_batches, other_user_batches)
     u = login(client, faker)
     u2 = create_user(faker)
 
-    expected_data = _create_batches(u, my_batches, faker)
-    _create_batches(u2, other_user_batches, faker)
+    expected_data = create_batches(u, my_batches, faker)
+    create_batches(u2, other_user_batches, faker)
 
     resp = client.get('/')
 
@@ -53,8 +53,8 @@ def test_ui_list__user_batch_list_last_page(client, faker, pages):
 
     batches = pages * page_size
 
-    expected_data = _create_batches(u, batches, faker)
-    _create_batches(u2, batches, faker)
+    expected_data = create_batches(u, batches, faker)
+    create_batches(u2, batches, faker)
 
     resp = client.get('/?page={}'.format(pages))
 
@@ -80,8 +80,8 @@ def test_ui_list__user_batch_list_middle_page(client, faker, pages):
 
     batches = pages * page_size
 
-    expected_data = _create_batches(u, batches, faker)
-    _create_batches(u2, batches, faker)
+    expected_data = create_batches(u, batches, faker)
+    create_batches(u2, batches, faker)
 
     page = pages // 2
 
@@ -106,26 +106,24 @@ def test_ui_list__user_batch_list_beyond_last_page(client, faker):
     batches = page_size
     page = 2
 
-    _create_batches(u, batches, faker)
-    _create_batches(u2, batches, faker)
+    create_batches(u, batches, faker)
+    create_batches(u2, batches, faker)
 
     resp = client.get('/?page={}'.format(page))
 
     assert resp.status_code == 200
 
 
-def _create_batches(user, number, faker):
-    result = []
+def test_ui_list__deleted_batch_missing(client, faker):
+    u = login(client, faker)
 
-    for _ in range(number):
-        b = faker.batch_details()
-        b.user = user
-        result.append(b)
-        db.session.add(b)
+    batches = create_batches(u, 1, faker)
+    batches[0].deleted = True
+    update_batch(batches[0])
 
-    db.session.commit()
+    resp = client.get('/')
 
-    return result
+    _assert__boilerplate_html(resp, 0, batches)
 
 
 def test_ui_list__user_batch_list_search_found(client, faker):
@@ -135,12 +133,11 @@ def test_ui_list__user_batch_list_search_found(client, faker):
     u = login(client, faker)
     u2 = create_user(faker)
 
-    expected_data = _create_batches(u, batches, faker)
-    _create_batches(u2, batches, faker)
+    expected_data = create_batches(u, batches, faker)
+    create_batches(u2, batches, faker)
 
     expected_data[0].name = "Known Elephant"
-    db.session.add(expected_data[1])
-    db.session.commit()
+    update_batch(expected_data[0])
 
     resp = client.get('/?search={}'.format("Elephant"))
 
@@ -155,6 +152,8 @@ def _assert__boilerplate_html(resp, items_on_page, batches):
     assert len(resp.soup.find('tbody').find_all('tr')) == items_on_page
     for tr in resp.soup.find('tbody').select('tr'):
         assert tr.select_one('td:nth-of-type(1)').string.strip() in [b.name for b in batches]
+        assert tr.select_one('td:nth-of-type(2)').string.strip() in [b.created_date.strftime("%-d %b %Y") for b in batches]
+        assert resp.soup.find(lambda tag: tag.name=="a" and 'Delete' in tag.text)
 
 
 @pytest.mark.parametrize("path", [
