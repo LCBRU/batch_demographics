@@ -87,6 +87,58 @@ class Batch(db.Model):
         ))
 
 
+class Column(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    column_index = db.Column(db.Integer())
+    name = db.Column(db.String(100))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
+    batch = db.relationship(
+        "Batch",
+        backref=db.backref(
+            'columns',
+            order_by=id,
+            cascade="all, delete-orphan",
+        ))
+    mapping = db.relationship("Mapping", uselist=False, back_populates="column")
+
+class Mapping(db.Model):
+    OUTPUT_NAMES = [
+        "FORENAMES",
+        "SURNAME",
+        "DOB",
+        "SEX",
+        "POSTCODE",
+        "NHS_NUMBER",
+        "SYSTEM_NUMBER",
+        "ADDRESS1",
+        "ADDRESS2",
+        "ADDRESS3",
+        "ADDRESS4",
+        "ADDRESS5",
+        "LOCAL_ID",
+    ]
+
+    id = db.Column(db.Integer(), primary_key=True)
+    output_name = db.Column(db.Integer())
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
+    batch = db.relationship(
+        "Batch",
+        backref=db.backref(
+            'mappings',
+            order_by=id,
+            cascade="all, delete-orphan",
+        ))
+    column_id = db.Column(db.Integer, db.ForeignKey('column.id'))
+    column = db.relationship("Column", back_populates="mapping")
+
+    @staticmethod
+    def get_mapping(name):
+        name = name.replace(' ', '')
+        if name in Mapping.OUTPUT_NAMES:
+            return name
+
 
 class BatchSchema(ma.ModelSchema):
 

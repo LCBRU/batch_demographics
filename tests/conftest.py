@@ -105,7 +105,19 @@ class UploadFiles:
 
         with open(saved_filepath, 'r') as f:
             content_saved = f.read()
-            assert content_saved == content       
+            assert content_saved == content
+
+    def copy_file_in(self, batch, source_folder, filename):
+        shutil.copyfile(
+            os.path.join(
+                source_folder,
+                filename,
+            ),
+            batch_file_path(batch),
+        )
+
+    def startup(self):
+        os.makedirs(current_app.config["FILE_UPLOAD_DIRECTORY"], exist_ok=True)
 
     def cleanup(self):
         path = current_app.config["FILE_UPLOAD_DIRECTORY"]
@@ -115,6 +127,7 @@ class UploadFiles:
 @pytest.yield_fixture(scope='function')
 def upload_files(app):
     result = UploadFiles()
+    result.startup()
 
     yield result
 
