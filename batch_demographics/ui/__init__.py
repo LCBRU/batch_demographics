@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, current_app, abort
 from flask_security import login_required, current_user
 from batch_demographics.database import db
-from batch_demographics.model import Batch
+from batch_demographics.model import Batch, Column
 from batch_demographics.ui.forms import BatchForm, SearchForm, ConfirmForm, MappingsForm
 from batch_demographics.files import save_file
 from batch_demographics.services.upload import extract_batch_column_headers
@@ -63,12 +63,16 @@ def upload():
             filename=form.data['participant_file'].filename,
             user=current_user,
         )
+
         db.session.add(batch)
         db.session.commit()
 
         save_file(batch, form.data['participant_file'])
         extract_batch_column_headers(batch)
         batch.automap_columns()
+
+        db.session.add(batch)
+        db.session.commit()
 
         return redirect(url_for('ui.index'))
 
@@ -101,23 +105,21 @@ def edit_mappings(batch_id):
     if batch.user != current_user:
         abort(403)
 
-    column_mappings = []
-
-    for c in batch.columns:
-        if c.mapping:
-            mapping = c.mapping.mapping
-        else:
-            mapping = ''
-
-        column_mappings.append({
-            'column_id': c.id,
-            'column_name': c.full_name,
-            'mapping': mapping,
-        })
-
-    form = MappingsForm(column_mappings=column_mappings)
+    form = MappingsForm(column_mappings=[{
+        'column_id': c.id,
+        'column_name': c.full_name,
+        'mapping': c.mapping,
+    } for c in batch.columns])
 
     if form.validate_on_submit():
+        for cm in form.column_mappings.entries:
+            c = Column.query.get_or_404(cm.column_id.data)
+            c.mapping = cm.mapping.data
+
+            db.session.add(c)
+
         db.session.commit()
+
+        return redirect(url_for('ui.index'))
 
     return render_template('mappings.html', form=form)

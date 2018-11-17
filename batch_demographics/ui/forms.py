@@ -41,5 +41,34 @@ class MappingForm(FlaskForm):
     mapping = SelectField('Mapping', choices=Column.get_select_options())
 
 
-class MappingsForm(FlaskForm):
+class MappingsForm(FlashingForm):
     column_mappings = FieldList(FormField(MappingForm))
+
+    def validate(self):
+        if not FlashingForm.validate(self):
+            return False
+
+        result = True
+        seen = {}
+
+        for cm in self.column_mappings.entries:
+            if not cm.mapping.data:
+                continue
+
+            if cm.mapping.data in seen.keys():
+                seen[cm.mapping.data].append(cm)
+            else:
+                seen[cm.mapping.data] = [cm]
+
+        for mapping, usage in seen.items():
+            if len(usage) > 1:
+                message = "'{}' has been used multiple times for the following fields: '{}'.".format(
+                    mapping, ', '.join(u.column_name.data for u in usage))
+
+                for u in usage:
+                    u.mapping.errors.append(message)
+
+                flash(message, "error")
+                result = False
+
+        return result

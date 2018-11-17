@@ -25,7 +25,6 @@
         <th>Name</th>
         <th>Date Uploaded</th>
         <th>Columns</th>
-        <th>Mapped Columns</th>
         <th></th>
       </tr>
     </thead>
@@ -41,12 +40,9 @@
         <td>
           {{ b.columns | length }}
         </td>
-        <td>
-          {{ b.mappings | length }}
-        </td>
         <td class="text-right">
           <a class="btn btn-primary" href="{{ url_for('ui.edit_mappings', batch_id=b.id) }}">Edit Mappings</a>
-          <a class="btn btn-primary" href="{{ url_for('ui.delete') }}" data-toggle="modal" data-target="#deleteBatchModal" data-id="{{ b.id }}">Delete</a>
+          <a class="btn btn-primary" data-toggle="modal" data-target="#deleteBatchModal" data-id="{{ b.id }}">Delete</a>
         </td>
       </tr>
     {% endfor %}

@@ -145,10 +145,12 @@ class Column(db.Model):
             if name in options:
                 return mapping
 
+        return ''
+
     @staticmethod
     def get_select_options():
         result = [(m, m) for m in Column.MAPPINGS.keys()]
-        result.insert(0, (None, 'Not mapped'))
+        result.insert(0, ('', 'Not mapped'))
         return result
 
 
