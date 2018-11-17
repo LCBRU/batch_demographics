@@ -23,6 +23,7 @@ def upgrade(migrate_engine):
         Column("column_index", Integer, index=True),
         Column("created_date", DateTime()),
         Column("name", NVARCHAR(100)),
+        Column("mapping", NVARCHAR(100)),
         Column("batch_id", Integer, ForeignKey("batch.id"), index=True, nullable=False),
         UniqueConstraint('batch_id', 'column_index'),
     )

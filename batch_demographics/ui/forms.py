@@ -1,6 +1,7 @@
 from flask import flash
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, StringField, IntegerField
+from wtforms import HiddenField, StringField, IntegerField, SelectField
+from wtforms.fields import FieldList, FormField
 from wtforms.validators import Length, DataRequired
 from flask_wtf.file import FileField, FileRequired
 
@@ -31,3 +32,13 @@ class ConfirmForm(FlashingForm):
 class BatchForm(FlashingForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     participant_file = FileField('Participants File', validators=[FileRequired()])
+
+
+class MappingForm(FlaskForm):
+    column_id = HiddenField('column_id')
+    column_name = HiddenField('column_name')
+    mapping = SelectField('Mapping')
+
+
+class MappingsForm(FlaskForm):
+    column_mappings = FieldList(FormField(MappingForm))

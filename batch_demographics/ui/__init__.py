@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, curren
 from flask_security import login_required, current_user
 from batch_demographics.database import db
 from batch_demographics.model import Batch
-from batch_demographics.ui.forms import BatchForm, SearchForm, ConfirmForm
+from batch_demographics.ui.forms import BatchForm, SearchForm, ConfirmForm, MappingsForm
 from batch_demographics.files import save_file
 from batch_demographics.services.upload import extract_batch_column_headers, automap_batch_columns
 
@@ -92,3 +92,32 @@ def delete():
         db.session.commit()
 
     return redirect(request.referrer or url_for('ui.index'))
+
+
+@blueprint.route('/batch/<int:batch_id>/edit', methods=['GET', 'POST'])
+def edit_mappings(batch_id):
+    batch = Batch.query.get_or_404(batch_id)
+
+    if batch.user != current_user:
+        abort(403)
+
+    column_mappings = []
+
+    for c in batch.columns:
+        if c.mapping:
+            mapping = c.mapping.mapping
+        else:
+            mapping = ''
+
+        column_mappings.append({
+            'column_id': c.id,
+            'column_name': c.name,
+            'mapping': mapping,
+        })
+
+    form = MappingsForm(column_mappings=column_mappings)
+
+    if form.validate_on_submit():
+        db.session.commit()
+
+    return render_template('mappings.html', form=form)

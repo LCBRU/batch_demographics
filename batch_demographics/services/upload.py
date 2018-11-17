@@ -20,17 +20,9 @@ def extract_batch_column_headers(batch):
 
 def automap_batch_columns(batch):
     for c in batch.columns:
-        output_name = Mapping.get_mapping(c.name)
+        mapping = Mapping.get_mapping(c.name)
 
-        print(c.name, output_name)
-
-        if not output_name:
-            continue
-
-        if output_name in (m.output_name for m in batch.mappings):
-            continue
-
-        m = Mapping(output_name=output_name, column=c, batch=batch, automapped=True)
-        db.session.add(m)
-
-    db.session.commit()
+        if not mapping or mapping in (c.mapping for c in batch.columns):
+            c.mapping = ''
+        else:
+            c.mapping = mapping

@@ -91,6 +91,7 @@ class Column(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     column_index = db.Column(db.Integer())
     name = db.Column(db.String(100))
+    mapping = db.Column(db.String(100))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
     batch = db.relationship(
@@ -100,10 +101,10 @@ class Column(db.Model):
             order_by=id,
             cascade="all, delete-orphan",
         ))
-    mapping = db.relationship("Mapping", uselist=False, back_populates="column")
 
-class Mapping(db.Model):
-    OUTPUT_NAMES = {
+
+class Mapping():
+    MAPPINGS = {
         "FORENAMES": ("FORENAMES", "FORENAME", "FIRSTNAME", "FIRSTNAMES", "GIVENNAME", "GIVENNAMES"),
         "SURNAME": ("SURNAME", "LASTNAME", "FAMILYNAME"),
         "SEX": ("SEX", "GENDER"),
@@ -119,29 +120,14 @@ class Mapping(db.Model):
         "LOCAL_ID": ("LOCALID",),
     }
 
-    id = db.Column(db.Integer(), primary_key=True)
-    output_name = db.Column(db.Integer())
-    automapped = db.Column(db.Boolean(), default=False)
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
-    batch = db.relationship(
-        "Batch",
-        backref=db.backref(
-            'mappings',
-            order_by=id,
-            cascade="all, delete-orphan",
-        ))
-    column_id = db.Column(db.Integer, db.ForeignKey('column.id'))
-    column = db.relationship("Column", back_populates="mapping")
-
     @staticmethod
     def get_mapping(name):
         name = name.translate({ord(c): None for c in string.punctuation + string.whitespace + '£€¬¦'})
         name = name.upper()
 
-        for output_name, options in Mapping.OUTPUT_NAMES.items():
+        for mapping, options in Mapping.MAPPINGS.items():
             if name in options:
-                return output_name
+                return mapping
 
 
 class BatchSchema(ma.ModelSchema):

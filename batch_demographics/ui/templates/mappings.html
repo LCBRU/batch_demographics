@@ -1,0 +1,24 @@
+{% extends "_base.html" %}
+{% import "_formHelpers.html" as formhelper %}
+
+{% block content %}
+
+<div class="panel panel-primary">
+
+  <div class="panel-heading">{{ site_name }}: Mappings</div>
+
+  <form id="upload" method="POST" class="form" enctype="multipart/form-data">
+      <fieldset>
+        {{ form.hidden_tag() }}
+          
+        {% for mapping in form.column_mappings %}
+            {{ mapping.hidden_tag() }}
+            {{ formhelper.render_field(mapping.mapping, label=mapping.column_name.data) }}
+        {% endfor %}
+  
+        {{ formhelper.render_button_bar('ui.index') }}
+      </fieldset>
+  </form>
+</div>
+
+{% endblock %}

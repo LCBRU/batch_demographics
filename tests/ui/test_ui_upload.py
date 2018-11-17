@@ -76,7 +76,7 @@ def test_ui_upload__batch_post(client, faker, upload_files, name):
 
     upload_files.assert_file_created(batch, HEADERS)
     assert {c.column_index: c.name for c in batch.columns} == {i: c for i, c in enumerate(HEADERS.split(','))}
-    assert {m.column.column_index: m.output_name for m in batch.mappings} == {i: c for i, c in enumerate(HEADERS.split(','))}
+    assert {c.column_index: c.mapping for c in batch.columns} == {i: c for i, c in enumerate(HEADERS.split(','))}
 
 
 @pytest.mark.parametrize("name", [
