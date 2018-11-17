@@ -103,21 +103,21 @@ class Column(db.Model):
     mapping = db.relationship("Mapping", uselist=False, back_populates="column")
 
 class Mapping(db.Model):
-    OUTPUT_NAMES = [
-        "FORENAMES",
-        "SURNAME",
-        "DOB",
-        "SEX",
-        "POSTCODE",
-        "NHS_NUMBER",
-        "SYSTEM_NUMBER",
-        "ADDRESS1",
-        "ADDRESS2",
-        "ADDRESS3",
-        "ADDRESS4",
-        "ADDRESS5",
-        "LOCAL_ID",
-    ]
+    OUTPUT_NAMES = {
+        "FORENAMES": ("FORENAMES", "FORENAME", "FIRSTNAME", "FIRSTNAMES", "GIVENNAME", "GIVENNAMES"),
+        "SURNAME": ("SURNAME", "LASTNAME", "FAMILYNAME"),
+        "SEX": ("SEX", "GENDER"),
+        "DOB": ("DOB", "DATEOFBIRTH", "BIRTHDATE"),
+        "POSTCODE": ("POSTCODE", "POSTALCODE"),
+        "NHS_NUMBER": ("NHSNUMBER",),
+        "SYSTEM_NUMBER": ("SYSTEMNUMBER", "SNUMBER", "UHLSNUMBER", "UHLSYSTEMNUMBER"),
+        "ADDRESS1": ("ADDRESS1",),
+        "ADDRESS2": ("ADDRESS2",),
+        "ADDRESS3": ("ADDRESS3",),
+        "ADDRESS4": ("ADDRESS4",),
+        "ADDRESS5": ("ADDRESS5",),
+        "LOCAL_ID": ("LOCALID",),
+    }
 
     id = db.Column(db.Integer(), primary_key=True)
     output_name = db.Column(db.Integer())
@@ -135,9 +135,12 @@ class Mapping(db.Model):
 
     @staticmethod
     def get_mapping(name):
-        name = name.replace(' ', '')
-        if name in Mapping.OUTPUT_NAMES:
-            return name
+        name = name.translate({ord(c): None for c in string.punctuation + string.whitespace + '£€¬¦'})
+        name = name.upper()
+
+        for output_name, options in Mapping.OUTPUT_NAMES.items():
+            if name in options:
+                return output_name
 
 
 class BatchSchema(ma.ModelSchema):

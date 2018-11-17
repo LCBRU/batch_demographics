@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+from io import BytesIO
 from flask import url_for
 from batch_demographics.model import Batch
 from tests.ui.test_ui_security import assert__requires_login_get, assert__requires_login_post
@@ -43,11 +44,16 @@ def test_ui_upload__batch_get(client, faker):
     ('*' * 100),
 ])
 def test_ui_upload__batch_post(client, faker, upload_files, name):
+
+    HEADERS = "FORENAMES,SURNAME,DOB,SEX,POSTCODE,NHS_NUMBER,SYSTEM_NUMBER,ADDRESS1,ADDRESS2,ADDRESS3,ADDRESS4,ADDRESS5,LOCAL_ID"
+    filename = "text.csv"
+
     u = login(client, faker)
 
-    file_details = faker.participant_file_details()
-
-    data = dict(name=name, participant_file=file_details['attachment'])
+    data = dict(name=name, participant_file=(
+        BytesIO(HEADERS.encode('utf-8')),
+        filename,
+    ))
 
     resp = client.post("/upload", data=data)
 
@@ -59,7 +65,7 @@ def test_ui_upload__batch_post(client, faker, upload_files, name):
     ).filter(
         Batch.user == u
     ).filter(
-        Batch.filename == file_details['filename']
+        Batch.filename == filename
     ).filter(
         Batch.created_date > resp.requested_time
     ).filter(
@@ -68,7 +74,9 @@ def test_ui_upload__batch_post(client, faker, upload_files, name):
 
     assert batch
 
-    upload_files.assert_file_created(batch, file_details['content'])
+    upload_files.assert_file_created(batch, HEADERS)
+    assert {c.column_index: c.name for c in batch.columns} == {i: c for i, c in enumerate(HEADERS.split(','))}
+    assert {m.column.column_index: m.output_name for m in batch.mappings} == {i: c for i, c in enumerate(HEADERS.split(','))}
 
 
 @pytest.mark.parametrize("name", [
