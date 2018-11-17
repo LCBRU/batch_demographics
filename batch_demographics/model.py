@@ -121,6 +121,7 @@ class Mapping(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     output_name = db.Column(db.Integer())
+    automapped = db.Column(db.Boolean(), default=False)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
     batch = db.relationship(

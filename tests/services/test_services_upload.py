@@ -172,7 +172,7 @@ def test_services_upload__csv_headers__correct(client, faker, upload_files, file
     (EXPECTED_TEST_10_COLUMNS_ALTERNATIVES),
     (EXPECTED_TEST_11_COLUMNS_ALTERNATIVES),
 ])
-def test_services_upload__auto_match__correct(client, faker, upload_files, columns):
+def test_services_upload__automap__correct(client, faker, upload_files, columns):
     u = create_user(faker)
 
     batch = create_batches(u, 1, faker)[0]
@@ -190,3 +190,4 @@ def test_services_upload__auto_match__correct(client, faker, upload_files, colum
 
     assert {m.column.column_index: m.output_name for m in batch.mappings} == expected
     assert len(batch.mappings) == len(expected)
+    assert all([m.automapped for m in batch.mappings])

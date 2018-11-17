@@ -30,7 +30,7 @@ def automap_batch_columns(batch):
         if output_name in (m.output_name for m in batch.mappings):
             continue
 
-        m = Mapping(output_name=output_name, column=c, batch=batch)
+        m = Mapping(output_name=output_name, column=c, batch=batch, automapped=True)
         db.session.add(m)
 
     db.session.commit()
