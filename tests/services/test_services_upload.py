@@ -3,7 +3,7 @@
 import os
 import pytest
 from batch_demographics.model import Batch, Column
-from batch_demographics.services.upload import extract_batch_column_headers, automap_batch_columns
+from batch_demographics.services.upload import extract_batch_column_headers
 from tests.model_tools import create_batches, create_user, update_batch
 
 TEST_FILE_PATH = os.path.join(
@@ -184,7 +184,7 @@ def test_services_upload__automap__correct(client, faker, upload_files, columns)
 
     update_batch(batch)
 
-    automap_batch_columns(batch)
+    batch.automap_columns()
 
     expected = {i: e['mapping'] for i, e in columns.items()}
 

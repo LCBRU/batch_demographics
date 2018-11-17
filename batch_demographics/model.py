@@ -86,24 +86,17 @@ class Batch(db.Model):
             cascade="all, delete-orphan",
         ))
 
+    def automap_columns(self):
+        for c in self.columns:
+            mapping = Column.get_mapping(c.name)
+
+            if not mapping or mapping in (c.mapping for c in self.columns):
+                c.mapping = ''
+            else:
+                c.mapping = mapping
+
 
 class Column(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    column_index = db.Column(db.Integer())
-    name = db.Column(db.String(100))
-    mapping = db.Column(db.String(100))
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
-    batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
-    batch = db.relationship(
-        "Batch",
-        backref=db.backref(
-            'columns',
-            order_by=id,
-            cascade="all, delete-orphan",
-        ))
-
-
-class Mapping():
     MAPPINGS = {
         "FORENAMES": ("FORENAMES", "FORENAME", "FIRSTNAME", "FIRSTNAMES", "GIVENNAME", "GIVENNAMES"),
         "SURNAME": ("SURNAME", "LASTNAME", "FAMILYNAME"),
@@ -120,12 +113,26 @@ class Mapping():
         "LOCAL_ID": ("LOCALID",),
     }
 
+    id = db.Column(db.Integer(), primary_key=True)
+    column_index = db.Column(db.Integer())
+    name = db.Column(db.String(100))
+    mapping = db.Column(db.String(100))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
+    batch = db.relationship(
+        "Batch",
+        backref=db.backref(
+            'columns',
+            order_by=id,
+            cascade="all, delete-orphan",
+        ))
+
     @staticmethod
     def get_mapping(name):
         name = name.translate({ord(c): None for c in string.punctuation + string.whitespace + '£€¬¦'})
         name = name.upper()
 
-        for mapping, options in Mapping.MAPPINGS.items():
+        for mapping, options in Column.MAPPINGS.items():
             if name in options:
                 return mapping
 

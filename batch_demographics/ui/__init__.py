@@ -4,7 +4,7 @@ from batch_demographics.database import db
 from batch_demographics.model import Batch
 from batch_demographics.ui.forms import BatchForm, SearchForm, ConfirmForm, MappingsForm
 from batch_demographics.files import save_file
-from batch_demographics.services.upload import extract_batch_column_headers, automap_batch_columns
+from batch_demographics.services.upload import extract_batch_column_headers
 
 
 blueprint = Blueprint('ui', __name__, template_folder='templates')
@@ -68,7 +68,7 @@ def upload():
 
         save_file(batch, form.data['participant_file'])
         extract_batch_column_headers(batch)
-        automap_batch_columns(batch)
+        batch.automap_columns()
 
         return redirect(url_for('ui.index'))
 
