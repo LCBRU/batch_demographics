@@ -111,7 +111,7 @@ def edit_mappings(batch_id):
 
         column_mappings.append({
             'column_id': c.id,
-            'column_name': c.name,
+            'column_name': c.full_name,
             'mapping': mapping,
         })
 

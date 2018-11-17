@@ -11,7 +11,7 @@ def extract_batch_column_headers(batch):
         reader = csv.DictReader(csvfile, dialect=dialect)
         headers = reader.fieldnames
 
-        for i, h in enumerate(headers):
+        for i, h in enumerate(headers, 1):
             c = Column(column_index=i, name=h, batch_id=batch.id)
             db.session.add(c)
 

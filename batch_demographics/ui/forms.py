@@ -4,6 +4,7 @@ from wtforms import HiddenField, StringField, IntegerField, SelectField
 from wtforms.fields import FieldList, FormField
 from wtforms.validators import Length, DataRequired
 from flask_wtf.file import FileField, FileRequired
+from batch_demographics.model import Column
 
 
 class FlashingForm(FlaskForm):
@@ -37,7 +38,7 @@ class BatchForm(FlashingForm):
 class MappingForm(FlaskForm):
     column_id = HiddenField('column_id')
     column_name = HiddenField('column_name')
-    mapping = SelectField('Mapping')
+    mapping = SelectField('Mapping', choices=Column.get_select_options())
 
 
 class MappingsForm(FlaskForm):

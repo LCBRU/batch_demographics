@@ -88,7 +88,7 @@ class Batch(db.Model):
 
     def automap_columns(self):
         for c in self.columns:
-            mapping = Column.get_mapping(c.name)
+            mapping = Column.suggest_mapping(c.name)
 
             if not mapping or mapping in (c.mapping for c in self.columns):
                 c.mapping = ''
@@ -127,14 +127,29 @@ class Column(db.Model):
             cascade="all, delete-orphan",
         ))
 
+    @property
+    def full_name(self):
+        column_index_name = "Column {}".format(self.column_index)
+
+        if self.name:
+            return "{}: {}".format(column_index_name, self.name)
+        else:
+            return column_index_name
+
     @staticmethod
-    def get_mapping(name):
+    def suggest_mapping(name):
         name = name.translate({ord(c): None for c in string.punctuation + string.whitespace + '£€¬¦'})
         name = name.upper()
 
         for mapping, options in Column.MAPPINGS.items():
             if name in options:
                 return mapping
+
+    @staticmethod
+    def get_select_options():
+        result = [(m, m) for m in Column.MAPPINGS.keys()]
+        result.insert(0, (None, 'Not mapped'))
+        return result
 
 
 class BatchSchema(ma.ModelSchema):
