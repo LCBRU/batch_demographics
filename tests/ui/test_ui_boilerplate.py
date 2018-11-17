@@ -24,8 +24,11 @@ def assert__html_boilerplate(client, faker, path, login=True):
     assert resp.soup.body is not None
 
 
-def assert__html_menu(client, faker, path):
-    u = login_user(client, faker)
+def assert__html_menu(client, faker, path, user=None):
+    if user:
+        u = user
+    else:
+        u = login_user(client, faker)
 
     resp = client.get(path)
 

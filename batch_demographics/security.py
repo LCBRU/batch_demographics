@@ -17,7 +17,7 @@ from flask_security.utils import verify_and_update_password, get_message
 from flask_login import current_user
 from wtforms.validators import ValidationError
 from wtforms import PasswordField, SubmitField
-from batch_demographics.model import User, Role
+from batch_demographics.model import User, Role, Batch
 from batch_demographics.database import db
 
 
@@ -116,3 +116,21 @@ def init_security(app):
                 user_datastore.add_role_to_user(user, admin_role)
 
         db.session.commit()
+
+
+def must_be_batch_owner():
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            batch = Batch.query.get_or_404(request.view_args.get("batch_id"))
+
+            if current_user != batch.user:
+                abort(403)
+
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
+
+

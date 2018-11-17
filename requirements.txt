@@ -10,3 +10,4 @@ flask_wtf
 pytz
 flask_security
 bcrypt
+html5lib

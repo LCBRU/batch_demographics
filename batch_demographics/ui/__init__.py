@@ -5,6 +5,7 @@ from batch_demographics.model import Batch, Column
 from batch_demographics.ui.forms import BatchForm, SearchForm, ConfirmForm, MappingsForm
 from batch_demographics.files import save_file
 from batch_demographics.services.upload import extract_batch_column_headers
+from batch_demographics.security import must_be_batch_owner
 
 
 blueprint = Blueprint('ui', __name__, template_folder='templates')
@@ -99,11 +100,9 @@ def delete():
 
 
 @blueprint.route('/batch/<int:batch_id>/edit', methods=['GET', 'POST'])
+@must_be_batch_owner()
 def edit_mappings(batch_id):
     batch = Batch.query.get_or_404(batch_id)
-
-    if batch.user != current_user:
-        abort(403)
 
     form = MappingsForm(column_mappings=[{
         'column_id': c.id,

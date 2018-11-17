@@ -1,4 +1,6 @@
 from batch_demographics.database import db
+from batch_demographics.model import Column
+
 
 def create_batches(user, number, faker):
     result = []
@@ -25,3 +27,13 @@ def create_user(faker):
     db.session.commit()
 
     return u
+
+
+def create_columns(batch, columns):
+    for i, c in enumerate(columns, 1):
+        c = Column(column_index=i, name=c, batch_id=batch.id)
+        batch.columns.append(c)
+
+    batch.automap_columns()
+    db.session.add(batch)
+    db.session.commit()

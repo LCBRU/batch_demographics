@@ -13,8 +13,6 @@ def assert__url_exists_without_login(client, path):
 def test_ui_security__admin_role_created(client):
     resp = client.get('/')
 
-    print(resp.requested_time)
-    print(resp.received_time)
     assert Role.query.count() == 1
     assert Role.query.filter(
         Role.name == 'admin'

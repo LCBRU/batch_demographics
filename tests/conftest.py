@@ -39,7 +39,7 @@ class CustomResponse(Response):
     @property
     def soup(self):
         if not self._soup:
-            self._soup = BeautifulSoup(self.data, "html.parser")
+            self._soup = BeautifulSoup(self.data, "html5lib")
 
         return self._soup
 

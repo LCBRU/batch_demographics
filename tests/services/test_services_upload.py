@@ -189,3 +189,7 @@ def test_services_upload__automap__correct(client, faker, upload_files, columns)
     expected = {i: e['mapping'] for i, e in columns.items()}
 
     assert {c.column_index: c.mapping for c in batch.columns} == expected
+
+# TODO: Excel
+# TODO: Errors - No columns, no rows, column mismatch, etc
+
